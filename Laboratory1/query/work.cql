@@ -1,3 +1,5 @@
+// 3.1 INSERT - SELECT queries
+
 INSERT INTO lecturebot.user_lectures
 (
 login,
@@ -212,3 +214,51 @@ VALUES
 
 
 SELECT JSON * FROM lecturebot.resource_components;
+
+
+
+
+
+// 3.2: UPDATE - SELECT queries
+
+
+
+
+// Updating user data structure for 'user_lectures'
+UPDATE lecturebot.user_lectures
+SET role = {
+	"name": 'Admin', 
+	"priority": 1, 
+	"allowed_self_crud": true,
+	"allow_unlimited_serialization": true,
+	"allow_role_grant": true
+}
+WHERE login = 'linus__torvalds';
+
+
+SELECT JSON * FROM lecturebot.user_lectures;
+
+
+
+
+// Updating static fields for 'user_lectures'
+UPDATE lecturebot.user_lectures
+SET password_hash = textAsBlob('4b849020eb3fdb780f0cbe7c27ff56a32765e235b4ee44c273f39ff887d5f804'), // New password: linux4legends
+password_salt = textAsBlob('848c33bde00fc7f426b92d922c50b85d917d26603e38af170971d351d56d8bc5')
+WHERE login = 'linus__torvalds';
+
+
+SELECT JSON * FROM lecturebot.user_lectures;
+
+
+
+
+// Updating regular field for 'user_lectures'
+UPDATE lecturebot.user_lectures
+SET lecture_header='Linus Torvalds: Main reasons why Linux is the best OS!'
+WHERE login = 'linus__torvalds' AND lecture_id = 1;
+
+
+SELECT JSON * FROM lecturebot.user_lectures;
+
+
