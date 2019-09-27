@@ -121,4 +121,94 @@ textAsBlob('8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'),
 
 
 
+
 SELECT JSON * FROM lecturebot.user_lectures;
+
+
+
+
+
+INSERT INTO lecturebot.resource_components
+(
+url,
+description,
+times_visited,
+component_id,
+component_tag,
+component_attributes,
+component_inner
+)
+VALUES
+(
+'https://en.wikipedia.org/wiki/Linux',
+'Wikipedia: Linux',
+2,
+1,
+'h1',
+{
+	'id': 'firstHeading',
+	'class': 'firstHeading',
+	'lang': 'en'
+},
+'Linux'
+);
+
+
+
+
+
+INSERT INTO lecturebot.resource_components
+(
+url,
+component_id,
+component_tag,
+component_attributes,
+component_inner
+)
+VALUES
+(
+'https://en.wikipedia.org/wiki/Linux',
+2,
+'p',
+{
+	'id': 'firstHeading',
+	'class': 'firstHeading',
+	'lang': 'en'
+},
+'<b>Linux</b> (<span class="nowrap"><span class="IPA nopopups noexcerpt"><a href="/wiki/Help:IPA/English" title="Help:IPA/English">/<span style="border-bottom:1px dotted"><span title="/ˈ/: primary stress follows">ˈ</span><span title="’l’ in ’lie’">l</span><span title="/ɪ/: ’i’ in ’kit’">ɪ</span><span title="’n’ in ’nigh’">n</span><span title="/ə/: ’a’ in ’about’">ə</span><span title="’k’ in ’kind’">k</span><span title="’s’ in ’sigh’">s</span></span>/</a></span> <span class="nowrap" style="font-size:85%">(<span class="unicode haudio"><span class="fn"><span style="white-space:nowrap;margin-right:.25em;"><a href="/wiki/File:Linus-linux.ogg" title="About this sound"><img alt="About this sound" src="//upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Loudspeaker.svg/11px-Loudspeaker.svg.png" decoding="async" width="11" height="11" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Loudspeaker.svg/17px-Loudspeaker.svg.png 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Loudspeaker.svg/22px-Loudspeaker.svg.png 2x" data-file-width="20" data-file-height="20"></a></span><a href="//upload.wikimedia.org/wikipedia/commons/0/03/Linus-linux.ogg" class="internal" title="Linus-linux.ogg">listen</a></span></span>)</span></span> <a href="/wiki/Help:Pronunciation_respelling_key" title="Help:Pronunciation respelling key"><i title="English pronunciation respelling"><span style="font-size:90%">LIN</span>-əks</i></a>)<sup id="cite_ref-pronunciation-2_11-0" class="reference"><a href="#cite_note-pronunciation-2-11">[9]</a></sup><sup id="cite_ref-Foldoc09Jun06_12-0" class="reference"><a href="#cite_note-Foldoc09Jun06-12">[10]</a></sup> is a family of <a href="/wiki/Free_and_open-source_software" title="Free and open-source software">open source</a> <a href="/wiki/Unix-like" title="Unix-like">Unix-like</a> <a href="/wiki/Operating_system" title="Operating system">operating systems</a> based on the <a href="/wiki/Linux_kernel" title="Linux kernel">Linux kernel</a>,<sup id="cite_ref-13" class="reference"><a href="#cite_note-13">[11]</a></sup> an <a href="/wiki/Kernel_(computing)" class="mw-redirect" title="Kernel (computing)">operating system kernel</a> first released on September 17, 1991, by <a href="/wiki/Linus_Torvalds" title="Linus Torvalds">Linus Torvalds</a>.<sup id="cite_ref-14" class="reference"><a href="#cite_note-14">[12]</a></sup><sup id="cite_ref-15" class="reference"><a href="#cite_note-15">[13]</a></sup><sup id="cite_ref-16" class="reference"><a href="#cite_note-16">[14]</a></sup> Linux is typically <a href="/wiki/Package_manager" title="Package manager">packaged</a> in a <a href="/wiki/Linux_distribution" title="Linux distribution">Linux distribution</a>.'
+);
+
+
+
+
+
+INSERT INTO lecturebot.resource_components
+(
+url,
+description,
+times_visited,
+component_id,
+component_tag,
+component_attributes,
+component_inner
+)
+VALUES
+(
+'http://cassandra.apache.org',
+'Apache Cassandra',
+1,
+1,
+'p',
+{
+	'id': 'firstHeading',
+	'class': 'firstHeading',
+	'lang': 'en'
+},
+'The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. <a href="http://techblog.netflix.com/2011/11/benchmarking-cassandra-scalability-on.html">Linear scalability</a> and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data. Cassandra’s support for replicating across multiple datacenters is best-in-class, providing lower latency for your users and the peace of mind of knowing that you can survive regional outages.'
+);
+
+
+
+
+
+SELECT JSON * FROM lecturebot.resource_components;
