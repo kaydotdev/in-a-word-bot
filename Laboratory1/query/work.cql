@@ -224,7 +224,7 @@ SELECT JSON * FROM lecturebot.resource_components;
 
 
 
-// Updating user data structure for 'user_lectures'
+// Updating user data structure
 UPDATE lecturebot.user_lectures
 SET role = {
 	"name": 'Admin', 
@@ -262,3 +262,23 @@ WHERE login = 'linus__torvalds' AND lecture_id = 1;
 SELECT JSON * FROM lecturebot.user_lectures;
 
 
+
+
+// Updating static fields for 'resource_components'
+UPDATE lecturebot.resource_components
+SET times_visited = 5
+WHERE url = 'https://en.wikipedia.org/wiki/Linux';
+
+
+SELECT JSON * FROM lecturebot.resource_components;
+
+
+
+
+// Updating regular fields for 'resource_components'
+UPDATE lecturebot.resource_components
+SET component_tag = 'a'
+WHERE url = 'https://en.wikipedia.org/wiki/Linux' AND component_id = 2;
+
+
+SELECT JSON * FROM lecturebot.resource_components;
