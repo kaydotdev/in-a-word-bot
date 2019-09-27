@@ -1,7 +1,5 @@
-DROP TABLE IF EXISTS lecturebot.lecture;
-DROP TABLE IF EXISTS lecturebot.component;
-DROP TABLE IF EXISTS lecturebot.resource;
-DROP TABLE IF EXISTS lecturebot.user;
+DROP TABLE IF EXISTS lecturebot.user_lectures;
+DROP TABLE IF EXISTS lecturebot.resource_components;
 
 DROP TYPE IF EXISTS lecturebot.role_type;
 
