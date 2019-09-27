@@ -14,44 +14,32 @@ CREATE TYPE lecturebot.role_type
 	allow_role_grant boolean
 );
 
-CREATE TABLE IF NOT EXISTS lecturebot.user
+CREATE TABLE IF NOT EXISTS lecturebot.user_lectures
 (
 	login text,
-	password_hash blob,
-	password_salt blob,
-	role FROZEN<role_type>,
-	resources set<text>,
-	PRIMARY KEY (login)
+	password_hash blob STATIC,
+	password_salt blob STATIC,
+	role FROZEN<role_type> STATIC,
+	resources set<text> STATIC,
+	
+	lecture_id int,
+	lecture_header text,
+	lecture_content text,
+	lecture_raw_view list<FROZEN<map<text, text>>>,
+	
+	PRIMARY KEY (login, lecture_id)
 );
 
-CREATE TABLE IF NOT EXISTS lecturebot.resource
+CREATE TABLE IF NOT EXISTS lecturebot.resource_components
 (
 	url text,
-	description text,
-	times_visited int,
-	PRIMARY KEY(url)
-);
-
-CREATE TABLE IF NOT EXISTS lecturebot.lecture
-(
-	id int,
-	header text,
-	content text,
-	raw_view list<FROZEN<map<text, text>>>,
+	description text STATIC,
+	times_visited int STATIC,
 	
-	user_login text,
+	component_id int,
+	component_tag text,
+	component_attributes map<text, text>,
+	component_inner text,
 	
-	PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS lecturebot.component
-(
-	id int,
-	tag text,
-	attributes map<text, text>,
-	inner text,
-	
-	resource_url text,
-	
-	PRIMARY KEY (id)
+	PRIMARY KEY(url, component_id)
 );
