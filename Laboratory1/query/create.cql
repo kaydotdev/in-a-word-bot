@@ -5,6 +5,7 @@ WITH REPLICATION =
 'replication_factor' : 5 
 };
 
+// User data type: stores all permisions granted to the users
 CREATE TYPE IF NOT EXISTS lecturebot.role_type
 (
 	name text,
@@ -14,6 +15,8 @@ CREATE TYPE IF NOT EXISTS lecturebot.role_type
 	allow_role_grant boolean
 );
 
+// Table as a result of combination 'user' and 'lecture' entities
+// Relation: User(ONE) - (MANY)Lecture
 CREATE TABLE IF NOT EXISTS lecturebot.user_lectures
 (
 	login text,
@@ -25,16 +28,18 @@ CREATE TABLE IF NOT EXISTS lecturebot.user_lectures
 	lecture_id int,
 	lecture_header text,
 	lecture_content text,
-	lecture_raw_view list<FROZEN<map<text, text>>>,
+	lecture_raw_view list<FROZEN<map<text, text>>>, // Composed data type
 	
 	PRIMARY KEY (login, lecture_id)
 );
 
+// Table as a result of combination 'resource' and 'component' entities
+// Relation: Resource(ONE) - (MANY)Component
 CREATE TABLE IF NOT EXISTS lecturebot.resource_components
 (
 	url text,
 	description text STATIC,
-	times_visited int STATIC,
+	times_visited int STATIC, // Integer-counter type
 	
 	component_id int,
 	component_tag text,
