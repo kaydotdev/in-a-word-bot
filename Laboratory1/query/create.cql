@@ -1,8 +1,8 @@
 CREATE KEYSPACE IF NOT EXISTS lecturebot 
 WITH REPLICATION = 
 { 
-'class' : 'NetworkTopologyStrategy', 
-'MainDataCenter' : 5 
+'class' : 'SimpleStrategy', 
+'replication_factor' : 5 
 };
 
 CREATE TYPE lecturebot.role_type
