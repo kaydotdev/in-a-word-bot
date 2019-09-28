@@ -276,7 +276,7 @@ session.execute(
 # UPDATE
 session.execute(
     update_user_data_structure_user_lectures_query,
-    ('linus__torvalds')
+    ['linus__torvalds']
 )
 
 session.execute(
@@ -321,25 +321,25 @@ session.execute(
 # CUSTOM
 session.execute(
     set_premium_plan_query,
-    ('linus__torvalds')
+    ['linus__torvalds']
 )
 
 
 raw_resource = session.execute(
     get_raw_resource_query,
-    ('https://en.wikipedia.org/wiki/Linux')
+    ['https://en.wikipedia.org/wiki/Linux']
 )
 
 
 serialized_lectures = session.execute(
     get_all_serialized_lectures_query,
-    ('linus__torvalds')
+    ['linus__torvalds']
 )
 
 
 session.execute(
     set_counter_to_new_resource_query,
-    ('lhttps://en.wikipedia.org/wiki/Linux')
+    ['lhttps://en.wikipedia.org/wiki/Linux']
 )
 
 
