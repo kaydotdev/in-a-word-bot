@@ -52,7 +52,7 @@ insert_new_component_with_new_resource_query = SimpleStatement(
 
 insert_new_component_to_existing_resource_query = SimpleStatement(
     """
-    INSERT INTO user_lectures (url, component_id, component_tag, component_attributes, component_inner)
+    INSERT INTO resource_components (url, component_id, component_tag, component_attributes, component_inner)
     VALUES (%s, %s, %s, %s, %s);
     """,
     consistency_level=ConsistencyLevel.ONE)
