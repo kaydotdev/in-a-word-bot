@@ -320,3 +320,39 @@ WHERE login = 'linus__torvalds';
 UPDATE lecturebot.resource_components
 SET times_visited = 0
 WHERE url = 'https://en.wikipedia.org/wiki/Linux';
+
+
+
+
+
+// 3.4: DELETE queries
+
+
+
+
+
+DELETE FROM lecturebot.user_lectures
+WHERE login = 'admin' AND lecture_id = 1;
+
+
+DELETE FROM lecturebot.user_lectures
+WHERE login = 'linus__torvalds' AND lecture_id = 2;
+
+
+DELETE FROM lecturebot.user_lectures
+WHERE login = 'linus__torvalds' AND lecture_id = 1;
+
+
+
+
+
+DELETE FROM lecturebot.resource_components
+WHERE url = 'http://cassandra.apache.org' AND component_id = 1;
+
+
+DELETE FROM lecturebot.resource_components
+WHERE url = 'https://en.wikipedia.org/wiki/Linux' AND component_id = 2;
+
+
+DELETE FROM lecturebot.resource_components
+WHERE url = 'https://en.wikipedia.org/wiki/Linux' AND component_id = 1;
