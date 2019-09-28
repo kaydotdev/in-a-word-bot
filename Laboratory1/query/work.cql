@@ -318,7 +318,7 @@ WHERE login = 'linus__torvalds';
 
 // Visit requested resource
 UPDATE lecturebot.resource_components
-SET times_visited = 0
+SET times_visited = 1
 WHERE url = 'https://en.wikipedia.org/wiki/Linux';
 
 
