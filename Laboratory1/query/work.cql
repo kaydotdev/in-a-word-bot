@@ -177,7 +177,7 @@ VALUES
 	'class': 'firstHeading',
 	'lang': 'en'
 },
-'<b>Linux</b> (<span class="nowrap"><span class="IPA nopopups noexcerpt"><a href="/wiki/Help:IPA/English" title="Help:IPA/English">/<span style="border-bottom:1px dotted"><span title="/ˈ/: primary stress follows">ˈ</span><span title="’l’ in ’lie’">l</span><span title="/ɪ/: ’i’ in ’kit’">ɪ</span><span title="’n’ in ’nigh’">n</span><span title="/ə/: ’a’ in ’about’">ə</span><span title="’k’ in ’kind’">k</span><span title="’s’ in ’sigh’">s</span></span>/</a></span> <span class="nowrap" style="font-size:85%">(<span class="unicode haudio"><span class="fn"><span style="white-space:nowrap;margin-right:.25em;"><a href="/wiki/File:Linus-linux.ogg" title="About this sound"><img alt="About this sound" src="//upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Loudspeaker.svg/11px-Loudspeaker.svg.png" decoding="async" width="11" height="11" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Loudspeaker.svg/17px-Loudspeaker.svg.png 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Loudspeaker.svg/22px-Loudspeaker.svg.png 2x" data-file-width="20" data-file-height="20"></a></span><a href="//upload.wikimedia.org/wikipedia/commons/0/03/Linus-linux.ogg" class="internal" title="Linus-linux.ogg">listen</a></span></span>)</span></span> <a href="/wiki/Help:Pronunciation_respelling_key" title="Help:Pronunciation respelling key"><i title="English pronunciation respelling"><span style="font-size:90%">LIN</span>-əks</i></a>)<sup id="cite_ref-pronunciation-2_11-0" class="reference"><a href="#cite_note-pronunciation-2-11">[9]</a></sup><sup id="cite_ref-Foldoc09Jun06_12-0" class="reference"><a href="#cite_note-Foldoc09Jun06-12">[10]</a></sup> is a family of <a href="/wiki/Free_and_open-source_software" title="Free and open-source software">open source</a> <a href="/wiki/Unix-like" title="Unix-like">Unix-like</a> <a href="/wiki/Operating_system" title="Operating system">operating systems</a> based on the <a href="/wiki/Linux_kernel" title="Linux kernel">Linux kernel</a>,<sup id="cite_ref-13" class="reference"><a href="#cite_note-13">[11]</a></sup> an <a href="/wiki/Kernel_(computing)" class="mw-redirect" title="Kernel (computing)">operating system kernel</a> first released on September 17, 1991, by <a href="/wiki/Linus_Torvalds" title="Linus Torvalds">Linus Torvalds</a>.<sup id="cite_ref-14" class="reference"><a href="#cite_note-14">[12]</a></sup><sup id="cite_ref-15" class="reference"><a href="#cite_note-15">[13]</a></sup><sup id="cite_ref-16" class="reference"><a href="#cite_note-16">[14]</a></sup> Linux is typically <a href="/wiki/Package_manager" title="Package manager">packaged</a> in a <a href="/wiki/Linux_distribution" title="Linux distribution">Linux distribution</a>.'
+'Linux (/ˈlɪnəks/ (About this soundlisten) LIN-əks)[9][10] is a family of open source Unix-like operating systems based on the Linux kernel,[11] an operating system kernel first released on September 17, 1991, by Linus Torvalds.[12][13][14] Linux is typically packaged in a Linux distribution. Distributions include the Linux kernel and supporting system software and libraries, many of which are provided by the GNU Project. Many Linux distributions use the word "Linux" in their name, but the Free Software Foundation uses the name GNU/Linux to emphasize the importance of GNU software, causing some controversy.[15][16] Popular Linux distributions[17][18][19] include Debian, Fedora, and Ubuntu. Commercial distributions include Red Hat Enterprise Linux and SUSE Linux Enterprise Server. Desktop Linux distributions include a windowing system such as X11 or Wayland, and a desktop environment such as GNOME or KDE Plasma 5. Distributions intended for servers may omit graphics altogether, or include a solution stack such as LAMP. Because Linux is freely redistributable, anyone may create a distribution for any purpose. Linux was originally developed for personal computers based on the Intel x86 architecture, but has since been ported to more platforms than any other operating system.[20] Linux is the leading operating system on servers and other big iron systems such as mainframe computers, and the only OS used on TOP500 supercomputers (since November 2017, having gradually eliminated all competitors).[21][22][23] It is used by around 2.3 percent of desktop computers.[24][25] The Chromebook, which runs the Linux kernel-based Chrome OS, dominates the US K–12 education market and represents nearly 20 percent of sub-$300 notebook sales in the US.[26] Linux also runs on embedded systems, i.e. devices whose operating system is typically built into the firmware and is highly tailored to the system. This includes routers, automation controls, televisions,[27][28] digital video recorders, video game consoles, and smartwatches.[29] Many smartphones and tablet computers run Android and other Linux derivatives.[30] Because of the dominance of Android on smartphones, Linux has the largest installed base of all general-purpose operating systems.[31] Linux is one of the most prominent examples of free and open-source software collaboration. The source code may be used, modified and distributed—commercially or non-commercially—by anyone under the terms of its respective licenses, such as the GNU General Public License.'
 );
 
 
@@ -282,3 +282,41 @@ WHERE url = 'https://en.wikipedia.org/wiki/Linux' AND component_id = 2;
 
 
 SELECT JSON * FROM lecturebot.resource_components;
+
+
+
+
+
+// 3.3: Custom queries
+
+
+
+// Set premium plan to the user by login
+UPDATE lecturebot.user_lectures
+SET role = {
+	"name": 'Super User', 
+	"priority": 2, 
+	"allowed_self_crud": true,
+	"allow_unlimited_serialization": true,
+	"allow_role_grant": false
+}
+WHERE login = 'user_to_promote';
+
+
+
+// Get raw view of requested resource
+SELECT component_inner FROM lecturebot.resource_components
+WHERE url = 'https://en.wikipedia.org/wiki/Linux';
+
+
+
+// Get all serialized lectures of user
+SELECT lecture_header, lecture_content FROM lecturebot.user_lectures
+WHERE login = 'linus__torvalds';
+
+
+
+// Visit requested resource
+UPDATE lecturebot.resource_components
+SET times_visited = 0
+WHERE url = 'https://en.wikipedia.org/wiki/Linux';
