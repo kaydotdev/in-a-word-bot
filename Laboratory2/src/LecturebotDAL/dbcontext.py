@@ -17,3 +17,4 @@ DBEngine = create_engine(connection_string)
 Session = sessionmaker(bind=DBEngine)
 
 ModelBase = declarative_base()
+session = Session()
