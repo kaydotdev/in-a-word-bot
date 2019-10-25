@@ -1,4 +1,4 @@
-from presentationlayer.app import app
+from LecturebotAPI.app import app
 
 if __name__ == '__main__':
     app.debug = True
