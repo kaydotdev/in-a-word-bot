@@ -4,24 +4,24 @@
 
 <style>
     table.table {
-        margin-top: 7rem;
+        margin-top: 3.45rem;
         text-align: right;
     }
 </style>
 
-<table class="table table-bordered">
-  <thead class="thead-dark">
-    <tr>
-        <th scope="col">Role name</th>
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
         <th scope="col">Role priority</th>
+        <th scope="col">Role name</th>
         <th scope="col" colspan="2">Manage</th>
     </tr>
   </thead>
     </tbody>
     {% for role in roles %}
     <tr>
-        <td> {{ role.Name }} </td>
         <td> {{ role.Priority }} </td>
+        <td> {{ role.Name }} </td>
         <td><a href="#" class="btn btn-success">Edit</a> </td>
         <td><a href="#" class="btn btn-danger">Delete</a> </td>
     </tr>
