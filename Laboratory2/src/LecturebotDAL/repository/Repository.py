@@ -1,11 +1,12 @@
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 
-class Repository:
+class Repository(object):
     def __init__(self, session, model_base, db_engine):
         self.DBEngine = db_engine
         self.Session = session
         self.ModelBase = model_base
+        self.ModelBase.metadata.create_all(self.DBEngine)
 
     def __map_entity(self, entity_model, entity):
         mapped_values = {}
