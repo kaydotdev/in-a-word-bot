@@ -28,7 +28,7 @@ CREATE TABLE "Lecture" (
   "UserLogin" VARCHAR (250) NOT NULL,
 
   "Header" VARCHAR(250) NOT NULL,
-  "Content" VARCHAR(250) NOT NULL,
+  "Content" VARCHAR(5000) NOT NULL,
 	
   PRIMARY KEY ("Id"),
 
@@ -72,7 +72,7 @@ CREATE TABLE "Component" (
   "ResourceURL" VARCHAR(2048) NOT NULL,
 	
   "Tag" VARCHAR(250) NOT NULL,
-  "Inner" VARCHAR(1000) NULL,
+  "Inner" VARCHAR(5000) NULL,
 	
   PRIMARY KEY ("Id"),
 	
