@@ -1,0 +1,39 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: right;
+    }
+
+    td.lecture-content {
+        text-align: left;
+    }
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col">Owner</th>
+        <th scope="col">Header</th>
+        <th scope="col">Content</th>
+        <th scope="col" colspan="2">Manage</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for lecture in lectures %}
+    <tr>
+        <td> {{ lecture.UserLogin }} </td>
+        <td> {{ lecture.Header }} </td>
+        <td class="lecture-content"> {{ lecture.Content }} </td>
+        <td><a href="#" class="btn btn-success">Edit</a> </td>
+        <td><a href="#" class="btn btn-danger">Delete</a> </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% endblock %}
