@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Date, ForeignKey
+from sqlalchemy import Column, String, Integer, ForeignKey
 
 from LecturebotDAL.dbcontext import ModelBase
 
