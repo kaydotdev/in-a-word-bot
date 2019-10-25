@@ -26,6 +26,9 @@ class Repository(object):
     def get_by_id(self, entity_model, identity):
         return self.Session.query(entity_model).filter_by(id=identity).first()
 
+    def get_by_raw_query(self, query):
+        return self.Session.query(query)
+
     def create(self, entity):
         self.Session.add(entity)
 
