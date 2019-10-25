@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 
 from LecturebotDAL.repository import Repository
-from LecturebotDAL.models import Role, Resource
+from LecturebotDAL.models import Role, User
 
 from LecturebotDAL.dbcontext import *
 
@@ -20,4 +20,12 @@ def list_roles():
     roles = repository.get_all(Role.Role)
 
     return render_template('role.html', roles=roles)
+
+
+@app.route('/user', methods=['GET'])
+def list_users():
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    users = repository.get_all(User.User)
+
+    return render_template('user.html', users=users)
 
