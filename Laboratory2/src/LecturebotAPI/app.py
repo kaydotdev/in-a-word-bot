@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 
 from LecturebotDAL.repository import Repository
-from LecturebotDAL.models import Role, User, Lecture, UserHasResources, Resource, Component
+from LecturebotDAL.models import Role, User, Lecture, UserHasResources, Resource, Component, Attribute
 
 from LecturebotDAL.dbcontext import *
 
@@ -60,5 +60,13 @@ def list_components():
     components = repository.get_all(Component.Component)
 
     return render_template('component.html', components=components)
+
+
+@app.route('/attribute', methods=['GET'])
+def list_attributes():
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    attributes = repository.get_all(Attribute.Attribute)
+
+    return render_template('attribute.html', attributes=attributes)
 
 
