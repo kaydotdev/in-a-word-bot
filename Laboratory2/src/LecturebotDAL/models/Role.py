@@ -10,8 +10,7 @@ class Role(ModelBase):
     Name = Column(String, nullable=False)
     Priority = Column(String, nullable=False)
 
-    def __init__(self, identity, name, priority):
-        self.Id = identity
+    def __init__(self, name, priority):
         self.Name = name
         self.Priority = priority
 
