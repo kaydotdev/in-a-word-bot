@@ -1,6 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 
-from LecturebotDAL.repository import Repository, UnitOfWork
+from LecturebotDAL.repository import Repository, UnitOfWork, ServiceLocator
 from LecturebotDAL.models import Role, User, Lecture, UserHasResources, Resource, Component, Attribute
 from LecturebotDAL.dbcontext import *
 
@@ -184,3 +184,18 @@ def list_attributes():
     return render_template('attribute.html', attributes=attributes)
 
 
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    resources = repository.get_all(Resource.Resource)
+
+    repository = ServiceLocator.ServiceLocator(session, ModelBase, DBEngine)
+    res_count = repository.get_count_of_resources_of_user().fetchall()
+
+    urls = [str(resource.URL) for resource in resources]
+    times = [int(resource.TimesVisited) for resource in resources]
+
+    res = [str(resC[0]) for resC in res_count]
+    count = [int(resC[1]) for resC in res_count]
+
+    return render_template('dashboard.html', x1=urls, y1=times, x2=res, y2=count)
