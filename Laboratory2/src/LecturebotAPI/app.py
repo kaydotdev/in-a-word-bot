@@ -66,9 +66,17 @@ def list_resources_of_user():
 @app.route('/resource', methods=['GET', 'POST'])
 def list_resources():
     repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
     resources = repository.get_all(Resource.Resource)
+    form = ResourceForm.ResourceForm(request.form)
 
-    return render_template('resource.html', resources=resources)
+    if request.method == 'POST':
+        new_resource = Resource.Resource(url=form.URL.data, description=form.Description.data, )
+        repository.create(new_resource)
+        unit_of_work.commit()
+        return redirect('/resource')
+
+    return render_template('resource.html', resources=resources, form=form)
 
 
 @app.route('/component', methods=['GET'])

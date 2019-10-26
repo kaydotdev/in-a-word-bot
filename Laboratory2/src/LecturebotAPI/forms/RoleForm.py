@@ -7,10 +7,10 @@ class RoleForm(FlaskForm):
 
     Name = StringField("Role name: ", [
         validators.DataRequired("Role name cannot be empty!")
-    ], render_kw={"placeholder": "Role name: "})
+    ], render_kw={"placeholder": "Name: "})
 
     Priority = IntegerField("Role priority: ", [
         validators.DataRequired("Role priority cannot be empty!")
-    ], render_kw={"placeholder": "Role priority: "})
+    ], render_kw={"placeholder": "Priority: "})
 
     Submit = SubmitField("Add")

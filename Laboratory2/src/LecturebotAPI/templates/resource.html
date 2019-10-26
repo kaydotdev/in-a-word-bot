@@ -37,4 +37,18 @@
     </tbody>
 </table>
 
+<form action="{{url_for('list_resources')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.URL(class_="form-control") }}
+        </div>
+        <div class="col">
+          {{ form.Description(class_="form-control") }}
+        </div>
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
 {% endblock %}
