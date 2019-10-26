@@ -24,7 +24,7 @@ class Repository(object):
         return self.Session.query(entity_model).all()
 
     def get_by_id(self, entity_model, identity):
-        return self.Session.query(entity_model).filter_by(id=identity).first()
+        return self.Session.query(entity_model).filter_by(Id=identity).first()
 
     def get_by_raw_query(self, query):
         return self.Session.query(query)
@@ -32,8 +32,14 @@ class Repository(object):
     def create(self, entity):
         self.Session.add(entity)
 
-    def update(self, entity_model, entity, identity):
-        self.Session.query(entity_model).filter_by(id=identity).update(self.__map_entity(entity_model, entity))
+    def update(self, entity_model, entity, identity, is_autoincrement):
+        if is_autoincrement:
+            self.Session.query(entity_model).filter_by(Id=identity).update(self.__map_entity(entity_model, entity))
+        else:
+            self.Session.query(entity_model).filter_by(URL=identity).update(self.__map_entity(entity_model, entity))
 
-    def drop(self, entity_model, identity):
-        self.Session.query(entity_model).filter_by(id=identity).delete()
+    def drop(self, entity_model, identity, is_autoincrement):
+        if is_autoincrement:
+            self.Session.query(entity_model).filter_by(Id=identity).delete()
+        else:
+            self.Session.query(entity_model).filter_by(URL=identity).delete()

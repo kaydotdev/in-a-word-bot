@@ -31,6 +31,15 @@ def list_roles():
     return render_template('role.html', roles=roles, form=form)
 
 
+@app.route('/role/delete/<identity>', methods=['GET'])
+def delete_role(identity):
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    repository.drop(Role.Role, identity, True)
+    unit_of_work.commit()
+    return redirect('/role')
+
+
 @app.route('/user', methods=['GET'])
 def list_users():
     repository = Repository.Repository(session, ModelBase, DBEngine)

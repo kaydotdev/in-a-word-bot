@@ -22,8 +22,8 @@
     <tr>
         <td> {{ role.Priority }} </td>
         <td> {{ role.Name }} </td>
-        <td><a href="#" class="btn btn-success">Edit</a></td>
-        <td><a href="#" class="btn btn-danger">Delete</a></td>
+        <td><a href="/role/edit/{{role.Id}}" class="btn btn-success">Edit</a></td>
+        <td><a href="/role/delete/{{role.Id}}" class="btn btn-danger">Delete</a></td>
     </tr>
     {% endfor %}
     </tbody>
