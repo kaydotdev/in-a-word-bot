@@ -28,8 +28,8 @@
         <td> {{ lecture.UserLogin }} </td>
         <td> {{ lecture.Header }} </td>
         <td class="lecture-content"> {{ lecture.Content }} </td>
-        <td><a href="#" class="btn btn-success">Edit</a> </td>
-        <td><a href="#" class="btn btn-danger">Delete</a> </td>
+        <td><a href="/lecture/edit/{{lecture.Id}}" class="btn btn-success">Edit</a> </td>
+        <td><a href="/lecture/delete/{{lecture.Id}}" class="btn btn-danger">Delete</a> </td>
     </tr>
     {% endfor %}
 

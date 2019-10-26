@@ -4,7 +4,7 @@ from LecturebotDAL.repository import Repository, UnitOfWork
 from LecturebotDAL.models import Role, User, Lecture, UserHasResources, Resource, Component, Attribute
 from LecturebotDAL.dbcontext import *
 
-from LecturebotAPI.forms import RoleForm, LectureForm, ResourceForm, RoleEditForm
+from LecturebotAPI.forms import RoleForm, LectureForm, ResourceForm, RoleEditForm, LectureEditForm
 
 app = Flask(__name__)
 app.secret_key = 'development key'
@@ -96,7 +96,7 @@ def delete_lecture(identity):
 
 @app.route('/lecture/edit/<identity>', methods=['GET'])
 def edit_lecture(identity):
-    form = LectureForm.LectureForm()
+    form = LectureEditForm.LectureEditForm()
     form.id.data = identity
     return render_template('lectureedit.html', identity=identity, form=form)
 
@@ -105,7 +105,7 @@ def edit_lecture(identity):
 def save_changes_lecture():
     repository = Repository.Repository(session, ModelBase, DBEngine)
     unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
-    form = LectureForm.LectureForm(request.form)
+    form = LectureEditForm.LectureEditForm(request.form)
 
     new_lecture = Lecture.Lecture(header=form.Header.data, content=form.Content.data, userlogin=form.Owner.data)
     new_lecture.Id = form.id.data

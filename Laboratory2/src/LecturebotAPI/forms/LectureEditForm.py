@@ -1,8 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, validators
+from wtforms import HiddenField, StringField, SubmitField, validators
 
 
-class LectureForm(FlaskForm):
+class LectureEditForm(FlaskForm):
+    id = HiddenField("Id")
+
     Owner = StringField("Owner login: ", [
         validators.DataRequired("Owner login cannot be empty!")
     ], render_kw={"placeholder": "Owner",
