@@ -1,0 +1,32 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: right;
+    }
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col">From URL</th>
+        <th scope="col">Tag</th>
+        <th scope="col">Inner</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for component in components %}
+    <tr>
+        <td> {{ component.ResourceURL }} </td>
+        <td> {{ component.Tag }} </td>
+        <td> {{ component.Inner }} </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% endblock %}

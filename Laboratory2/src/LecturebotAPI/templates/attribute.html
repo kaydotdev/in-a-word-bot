@@ -1,0 +1,30 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: right;
+    }
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col">Key</th>
+        <th scope="col">Value</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for attribute in attributes %}
+    <tr>
+        <td> {{ attribute.Key }} </td>
+        <td> {{ attribute.Value }} </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% endblock %}

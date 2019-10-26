@@ -1,0 +1,30 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: right;
+    }
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col">Login</th>
+        <th scope="col">Date of Registration</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for user in users %}
+    <tr>
+        <td> {{ user.Login }} </td>
+        <td> {{ user.RegistrationDate }} </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% endblock %}

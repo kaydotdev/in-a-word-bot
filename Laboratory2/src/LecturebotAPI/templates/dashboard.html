@@ -1,0 +1,44 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    div.container {
+        margin-top: 3.45rem;
+    }
+</style>
+
+<div class="container">
+    <h1>Number of page visits per resource</h1>
+    <div id="bar" class="bar">
+    </div>
+
+    <h2>Resources count comparing per user</h2>
+    <div id="pie" class="pie">
+    </div>
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+
+    <script type="text/javascript">
+        var data1 = [{
+          x: {{ x1 | tojson }},
+          y: {{ y1 | tojson }},
+          type: 'bar'
+        }];
+        var layout = {
+          height: 400,
+          width: 500
+        };
+        var data2 = [{
+          labels: {{ x2 | tojson }},
+          values: {{ y2 | tojson }},
+          type: 'pie'
+        }];
+        Plotly.newPlot('bar', data1, {}, {showSendToCloud:true});
+        Plotly.newPlot('pie', data2, {}, {showSendToCloud:true});
+    </script>
+</div>
+
+{% endblock %}
