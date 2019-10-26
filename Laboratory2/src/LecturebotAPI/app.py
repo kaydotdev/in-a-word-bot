@@ -139,7 +139,7 @@ def list_resources():
     return render_template('resource.html', resources=resources, form=form)
 
 
-@app.route('/resource/delete/<url>', methods=['GET'])
+@app.route('/resource/delete/(<url>)', methods=['GET'])
 def delete_resource(url):
     repository = Repository.Repository(session, ModelBase, DBEngine)
     unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
@@ -148,7 +148,7 @@ def delete_resource(url):
     return redirect('/lecture')
 
 
-@app.route('/resource/edit/<url>', methods=['GET'])
+@app.route('/resource/edit/(<url>)', methods=['GET'])
 def edit_resource(url):
     form = LectureEditForm.LectureEditForm()
     form.id.data = url

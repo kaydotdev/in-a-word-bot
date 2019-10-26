@@ -29,8 +29,8 @@
         <td class="url-content"> {{ resource.URL }} </td>
         <td> {{ resource.Description }} </td>
         <td> {{ resource.TimesVisited }} </td>
-        <td><a href="#" class="btn btn-success">Edit</a> </td>
-        <td><a href="#" class="btn btn-danger">Delete</a> </td>
+        <td><a href="/resource/edit/({{resource.URL}})" class="btn btn-success">Edit</a> </td>
+        <td><a href="/resource/edit/({{resource.URL}})" class="btn btn-danger">Delete</a> </td>
     </tr>
     {% endfor %}
 
