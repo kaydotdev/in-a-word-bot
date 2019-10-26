@@ -4,7 +4,7 @@ from LecturebotDAL.repository import Repository, UnitOfWork
 from LecturebotDAL.models import Role, User, Lecture, UserHasResources, Resource, Component, Attribute
 from LecturebotDAL.dbcontext import *
 
-from LecturebotAPI.forms import RoleForm, LectureForm, ResourceForm, RoleEditForm, LectureEditForm
+from LecturebotAPI.forms import RoleForm, LectureForm, ResourceForm, RoleEditForm, LectureEditForm, ResourceEditForm
 
 app = Flask(__name__)
 app.secret_key = 'development key'
@@ -131,12 +131,41 @@ def list_resources():
     form = ResourceForm.ResourceForm(request.form)
 
     if request.method == 'POST':
-        new_resource = Resource.Resource(url=form.URL.data, description=form.Description.data, )
+        new_resource = Resource.Resource(url=form.URL.data, description=form.Description.data)
         repository.create(new_resource)
         unit_of_work.commit()
         return redirect('/resource')
 
     return render_template('resource.html', resources=resources, form=form)
+
+
+@app.route('/resource/delete/<url>', methods=['GET'])
+def delete_resource(url):
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    repository.drop(Resource.Resource, url, False)
+    unit_of_work.commit()
+    return redirect('/lecture')
+
+
+@app.route('/resource/edit/<url>', methods=['GET'])
+def edit_resource(url):
+    form = LectureEditForm.LectureEditForm()
+    form.id.data = url
+    return render_template('lectureedit.html', identity=url, form=form)
+
+
+@app.route('/resourceedit', methods=['POST'])
+def save_changes_resource():
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    form = ResourceEditForm.ResourceEditForm(request.form)
+
+    new_resource = Resource.Resource(url=form.id.data, description=form.Description.data)
+
+    repository.update(Resource.Resource, new_resource, form.id.data, False)
+    unit_of_work.commit()
+    return redirect('/resource')
 
 
 @app.route('/component', methods=['GET'])
