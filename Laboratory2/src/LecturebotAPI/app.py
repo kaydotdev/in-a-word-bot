@@ -4,7 +4,7 @@ from LecturebotDAL.repository import Repository, UnitOfWork
 from LecturebotDAL.models import Role, User, Lecture, UserHasResources, Resource, Component, Attribute
 from LecturebotDAL.dbcontext import *
 
-from LecturebotAPI.forms import RoleForm, LectureForm, ResourceForm
+from LecturebotAPI.forms import RoleForm, LectureForm, ResourceForm, RoleEditForm
 
 app = Flask(__name__)
 app.secret_key = 'development key'
@@ -36,6 +36,27 @@ def delete_role(identity):
     repository = Repository.Repository(session, ModelBase, DBEngine)
     unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
     repository.drop(Role.Role, identity, True)
+    unit_of_work.commit()
+    return redirect('/role')
+
+
+@app.route('/role/edit/<identity>', methods=['GET'])
+def edit_role(identity):
+    form = RoleEditForm.RoleEditForm()
+    form.id.data = identity
+    return render_template('roleedit.html', identity=identity, form=form)
+
+
+@app.route('/roleedit', methods=['POST'])
+def save_changes_role():
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    form = RoleEditForm.RoleEditForm(request.form)
+
+    new_role = Role.Role(name=form.Name.data, priority=form.Priority.data)
+    new_role.Id = form.id.data
+
+    repository.update(Role.Role, new_role, form.id.data, True)
     unit_of_work.commit()
     return redirect('/role')
 
