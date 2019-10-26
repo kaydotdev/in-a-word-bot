@@ -85,6 +85,36 @@ def list_lectures():
     return render_template('lecture.html', lectures=lectures, form=form)
 
 
+@app.route('/lecture/delete/<identity>', methods=['GET'])
+def delete_lecture(identity):
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    repository.drop(Lecture.Lecture, identity, True)
+    unit_of_work.commit()
+    return redirect('/lecture')
+
+
+@app.route('/lecture/edit/<identity>', methods=['GET'])
+def edit_lecture(identity):
+    form = LectureForm.LectureForm()
+    form.id.data = identity
+    return render_template('lectureedit.html', identity=identity, form=form)
+
+
+@app.route('/lectureedit', methods=['POST'])
+def save_changes_lecture():
+    repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    form = LectureForm.LectureForm(request.form)
+
+    new_lecture = Lecture.Lecture(header=form.Header.data, content=form.Content.data, userlogin=form.Owner.data)
+    new_lecture.Id = form.id.data
+
+    repository.update(Lecture.Lecture, new_lecture, form.id.data, True)
+    unit_of_work.commit()
+    return redirect('/lecture')
+
+
 @app.route('/userhasresources', methods=['GET'])
 def list_resources_of_user():
     repository = Repository.Repository(session, ModelBase, DBEngine)
