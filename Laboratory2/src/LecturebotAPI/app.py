@@ -23,8 +23,6 @@ def list_roles():
     form = RoleForm.RoleForm(request.form)
 
     if request.method == 'POST':
-        print(form.id.data)
-
         new_role = Role.Role(name=form.Name.data, priority=form.Priority.data)
         repository.create(new_role)
         unit_of_work.commit()
@@ -44,9 +42,17 @@ def list_users():
 @app.route('/lecture', methods=['GET', 'POST'])
 def list_lectures():
     repository = Repository.Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
     lectures = repository.get_all(Lecture.Lecture)
+    form = LectureForm.LectureForm(request.form)
 
-    return render_template('lecture.html', lectures=lectures)
+    if request.method == 'POST':
+        new_lecture = Lecture.Lecture(header=form.Header.data, content=form.Content.data, userlogin=form.Owner.data)
+        repository.create(new_lecture)
+        unit_of_work.commit()
+        return redirect('/lecture')
+
+    return render_template('lecture.html', lectures=lectures, form=form)
 
 
 @app.route('/userhasresources', methods=['GET'])

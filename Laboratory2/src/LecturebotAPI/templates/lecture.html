@@ -36,4 +36,21 @@
     </tbody>
 </table>
 
+<form action="{{url_for('list_lectures')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.Owner(class_="form-control") }}
+        </div>
+        <div class="col">
+          {{ form.Header(class_="form-control") }}
+        </div>
+        <div class="col">
+          {{ form.Content(class_="form-control") }}
+        </div>
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
 {% endblock %}
