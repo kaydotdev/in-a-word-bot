@@ -1,0 +1,7 @@
+_tsugum1_^Admin^246dbb57db4398ffaea18090ab2f0da0b3cc16de950f4bc5d5b3771b8e702bf5^2019-10-24
+Tsutomu Shimomura's life^Tsutomu Shimomura (born October 23, 1964) is an American physicist and computer security expert. He is known for helping the FBI track and arrest hacker Kevin Mitnick. Takedown, his 1996 book on the subject with journalist John Markoff, was later adapted for the screen in Track Down in 2000. Shimomura was a founder of semiconductor company Neofocal Systems, and served as CEO and CTO until 2016.
+*
+https://en.wikipedia.org/wiki/Tsutomu_Shimomura|Tsutomu Shimomura|1
+*
+https://en.wikipedia.org/wiki/Tsutomu_Shimomura|p|Tsutomu Shimomura (born October 23, 1964) is an American physicist and computer security expert.
+https://en.wikipedia.org/wiki/Tsutomu_Shimomura|a|He is known for helping the FBI track and arrest hacker Kevin Mitnick. Takedown, his 1996 book on the subject with journalist John Markoff, was later adapted for the screen in Track Down in 2000.
