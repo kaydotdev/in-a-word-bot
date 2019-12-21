@@ -1,0 +1,56 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: right;
+    }
+
+    td.lecture-content {
+        text-align: left;
+    }
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col">Owner</th>
+        <th scope="col">Header</th>
+        <th scope="col">Content</th>
+        <th scope="col" colspan="2">Manage</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for lecture in lectures %}
+    <tr>
+        <td> {{ lecture.UserLogin }} </td>
+        <td> {{ lecture.Header }} </td>
+        <td class="lecture-content"> {{ lecture.Content }} </td>
+        <td><a href="/lecture/edit/{{lecture.Id}}" class="btn btn-success">Edit</a> </td>
+        <td><a href="/lecture/delete/{{lecture.Id}}" class="btn btn-danger">Delete</a> </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<form action="{{url_for('list_lectures')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.Owner(class_="form-control") }}
+        </div>
+        <div class="col">
+          {{ form.Header(class_="form-control") }}
+        </div>
+        <div class="col">
+          {{ form.Content(class_="form-control") }}
+        </div>
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: left;
+    }
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col">Owner</th>
+        <th scope="col">Resource</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for ur in usersresources %}
+    <tr>
+        <td> {{ ur.UserLogin }} </td>
+        <td> {{ ur.ResourceURL }} </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% endblock %}

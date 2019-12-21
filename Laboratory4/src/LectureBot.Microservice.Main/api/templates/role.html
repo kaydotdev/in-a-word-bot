@@ -1,0 +1,46 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: right;
+    }
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col">Role priority</th>
+        <th scope="col">Role name</th>
+        <th scope="col" colspan="2">Manage</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for role in roles %}
+    <tr>
+        <td> {{ role.Priority }} </td>
+        <td> {{ role.Name }} </td>
+        <td><a href="/role/edit/{{role.Id}}" class="btn btn-success">Edit</a></td>
+        <td><a href="/role/delete/{{role.Id}}" class="btn btn-danger">Delete</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<form action="{{url_for('list_roles')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.Priority(class_="form-control") }}
+        </div>
+        <div class="col">
+          {{ form.Name(class_="form-control") }}
+        </div>
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+{% endblock %}

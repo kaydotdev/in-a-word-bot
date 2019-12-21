@@ -1,0 +1,54 @@
+{% extends "navigation.html" %}
+
+{% block content %}
+
+<style>
+    table.table {
+        margin-top: 3.45rem;
+        text-align: right;
+    }
+
+    .url-content {
+        text-align: left;
+    }
+
+</style>
+
+<table class="table">
+  <thead>
+    <tr class="bg-primary">
+        <th scope="col" class="url-content">URL</th>
+        <th scope="col">Description</th>
+        <th scope="col">Number of page visits</th>
+        <th scope="col" colspan="2">Manage</th>
+    </tr>
+  </thead>
+    </tbody>
+    {% for resource in resources %}
+    <tr>
+        <td class="url-content"> {{ resource.URL }} </td>
+        <td> {{ resource.Description }} </td>
+        <td> {{ resource.TimesVisited }} </td>
+        <td><a href="/resource/edit/({{resource.URL}})" class="btn btn-success">Edit</a> </td>
+        <td><a href="/resource/edit/({{resource.URL}})" class="btn btn-danger">Delete</a> </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<form action="{{url_for('list_resources')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.URL(class_="form-control") }}
+        </div>
+        <div class="col">
+          {{ form.Description(class_="form-control") }}
+        </div>
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+{% endblock %}
