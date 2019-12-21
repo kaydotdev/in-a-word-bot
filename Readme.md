@@ -1,4 +1,5 @@
 # Tasks for course "Databases and Informational Systems" 
+### Student: Kozyriev Anton
 
 - [x] Laboratory 1
 - [x] Laboratory 2
