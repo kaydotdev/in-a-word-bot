@@ -1,18 +1,43 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for, make_response
 
 from dal.repository import Repository, UnitOfWork, ServiceLocator
 from dal.models import Role, User, Lecture, UserHasResources, Resource, Component, Attribute
 from dal.dbcontext import *
 
 from api.forms import RoleForm, LectureForm, ResourceForm, RoleEditForm, LectureEditForm, ResourceEditForm
+from api.settings.launch import SECRET
 
 app = Flask(__name__)
-app.secret_key = 'development key'
+app.secret_key = SECRET
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('navigation.html')
+    if request.method == 'POST':
+        res = make_response("")
+        res.set_cookie('user', 'bar', max_age=None)
+        res.set_cookie('token', 'bar', max_age=None)
+        res.headers['location'] = url_for('navigation')
+        return res, 302
+
+    if 'token' in request.cookies:
+        return render_template('navigation.html', user=request.cookies['user'])
+    else:
+        return render_template('login.html')
+
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    res = make_response("")
+    res.set_cookie('user', '', max_age=0)
+    res.set_cookie('token', '', max_age=0)
+    res.headers['location'] = url_for('index')
+    return res, 302
+
+
+@app.route('/navigation', methods=['GET', 'POST'])
+def navigation():
+    return render_template('navigation.html', user=request.cookies['user'])
 
 
 @app.route('/role', methods=['GET', 'POST'])
