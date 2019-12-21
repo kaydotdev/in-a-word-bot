@@ -93,8 +93,6 @@
           color: #777;
         }
 
-        /* Fallback for Edge
-        -------------------------------------------------- */
         @supports (-ms-ime-align: auto) {
           .form-label-group > label {
             display: none;
@@ -122,12 +120,12 @@
       </div>
 
       <div class="form-label-group">
-        <input type="text" id="inputLogin" class="form-control" placeholder="Login">
+        {{ form.Login(class_="form-control") }}
         <label for="inputLogin">Login</label>
       </div>
 
       <div class="form-label-group">
-        <input type="password" id="inputPassword" class="form-control" placeholder="Password">
+        {{ form.Password(class_="form-control") }}
         <label for="inputPassword">Password</label>
       </div>
 

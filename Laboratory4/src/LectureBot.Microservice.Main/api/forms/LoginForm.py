@@ -1,15 +1,17 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, validators
+from wtforms import StringField, SubmitField, validators, HiddenField, PasswordField
 
 
 class LoginForm(FlaskForm):
+    id = HiddenField("Id")
+
     Login = StringField("Login", [
         validators.DataRequired("Login cannot be empty!")
-    ], render_kw={"placeholder": "Login"})
+    ], render_kw={"placeholder": "Login", "id": "inputLogin"})
 
-    Password = StringField("Password", [
+    Password = PasswordField("Password", [
         validators.DataRequired("Password cannot be empty!"),
-        validators.Length("Password should contain at least 8 symbols!", min=8)
-    ], render_kw={"placeholder": "Password"})
+        validators.Length(min=8, message="Password should contain at least 8 symbols!")
+    ], render_kw={"placeholder": "Password", "id": "inputPassword"})
 
     Submit = SubmitField("Sign in")
