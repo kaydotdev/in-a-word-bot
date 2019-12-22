@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, make_respo
 
 from dal.repository.LecturesRepository import LecturesRepository
 from dal.repository.UserRepository import UserRepository
+from dal.repository.RoleRepository import RoleRepository
+from dal.repository.ResourceRepository import ResourceRepository
 from dal.repository.UnitOfWork import UnitOfWork
 
 from dal.dbcontext import *
@@ -112,4 +114,26 @@ def update_lecture():
     repository.update_lecture(form.id.data, new_lecture)
     unit_of_work.commit()
     return redirect('/lecture')
+
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    user_login = request.cookies['user']
+    lectures_repository = LecturesRepository(session, ModelBase, DBEngine)
+    lectures_count = lectures_repository.get_amount_of_lectures_of_user(user_login)
+    l_count = [str(lecture_count.Lectures) for lecture_count in lectures_count][0]
+
+    roles_repository = RoleRepository(session, ModelBase, DBEngine)
+    role_of_user = roles_repository.get_user_role(user_login)
+    r_user = [str(r.Name) for r in role_of_user][0]
+
+    resource_repository = ResourceRepository(session, ModelBase, DBEngine)
+    resources_of_user = resource_repository.get_amount_of_resources_of_user(user_login)
+    res_user = [str(r.URLS) for r in resources_of_user][0]
+
+    return render_template('profile.html',
+                           user=request.cookies['user'],
+                           lectures_count=l_count,
+                           user_role=r_user,
+                           user_resources=res_user)
 
