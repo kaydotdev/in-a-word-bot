@@ -4,7 +4,7 @@ from dal.models.Lecture import Lecture
 
 class LecturesRepository(Repository):
     def __init__(self, session, model_base, db_engine):
-        Repository.__init__(self, session, model_base, db_engine)
+        Repository.__init__(self, session, model_base, db_engine, Lecture)
 
     def get_amount_of_lectures_of_user(self, user_login):
         return self.DBEngine.execute(f'''
