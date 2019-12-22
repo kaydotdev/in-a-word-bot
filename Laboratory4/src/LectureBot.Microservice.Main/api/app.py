@@ -174,15 +174,54 @@ def list_resources():
                            form=form)
 
 
-@app.route("/resource/edit/resource='<identity>'", methods=['GET'])
-def edit_resource(identity):
+@app.route('/resource/edit', methods=['GET'])
+def edit_resources():
+    url_query = request.cookies['resource_url']
     user_login = request.cookies['user']
-    form = LectureEditForm()
+    form = ResourceEditForm()
 
-    lectures_repository = LecturesRepository(session, ModelBase, DBEngine)
+    resource_repository = ResourceRepository(session, ModelBase, DBEngine)
+    resource_to_edit = resource_repository.get_by_url(url_query)
 
-    form.Header.data = lectures_repository.get_lecture_by_id(identity).Header
-    form.Content.data = lectures_repository.get_lecture_by_id(identity).Content
+    form.Url.data = resource_to_edit.URL
+    form.Description.data = resource_to_edit.Description
 
-    return render_template('resource_update.html', identity=identity, form=form, user=user_login)
+    return render_template('resource_update.html',
+                           form=form,
+                           user=user_login)
 
+
+@app.route('/update_resource', methods=['GET', 'POST'])
+def update_resource():
+    form = ResourceEditForm(request.form)
+    resource_repository = ResourceRepository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
+    new_resource = Resource(url=form.Url.data, description=form.Description.data, times_visited=1)
+
+    resource_repository.update_resource(new_resource.URL, new_resource)
+    unit_of_work.commit()
+
+    res = make_response("")
+    res.set_cookie('resource_url', '', max_age=0)
+    res.headers['location'] = url_for('list_resources')
+    return res, 302
+
+
+@app.route('/resource/delete', methods=['GET'])
+def delete_resource():
+    user_login = request.cookies['user']
+    url_query = request.cookies['resource_url']
+
+    repository = ResourceRepository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
+
+    repository.drop_user_and_resource_relation(user_login, url_query)
+    unit_of_work.commit()
+
+    repository.drop_resource(url_query)
+    unit_of_work.commit()
+
+    res = make_response("")
+    res.set_cookie('resource_url', '', max_age=0)
+    res.headers['location'] = url_for('list_resources')
+    return res, 302

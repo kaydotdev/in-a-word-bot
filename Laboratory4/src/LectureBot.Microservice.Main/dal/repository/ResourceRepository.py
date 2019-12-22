@@ -6,6 +6,13 @@ class ResourceRepository(Repository):
     def __init__(self, session, model_base, db_engine):
         Repository.__init__(self, session, model_base, db_engine, Resource)
 
+    def drop_user_and_resource_relation(self, user_login, resource_url):
+        self.DBEngine.execute(f'''
+                DELETE FROM "UserHasResources"
+                WHERE "UserLogin" = '{user_login}' 
+                AND "ResourceURL" = '{resource_url}';
+                ''')
+
     def insert_user_and_resource_relation(self, user_login, resource_url):
         self.DBEngine.execute(f'''
                 INSERT INTO "UserHasResources" ("UserLogin", "ResourceURL")
