@@ -1,14 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 
 from dal.repository.LecturesRepository import LecturesRepository
-from dal.repository.Repository import Repository
+from dal.repository.UserRepository import UserRepository
 from dal.repository.UnitOfWork import UnitOfWork
 
-from dal.models import User, Lecture
 from dal.dbcontext import *
 
-from api.forms import LectureForm, LectureEditForm, LoginForm
+from api.forms.LectureForm import LectureForm
+from api.forms.LoginForm import LoginForm
+
 from api.settings.launch import SECRET
+
+from dal.models.Lecture import Lecture
 
 app = Flask(__name__)
 app.secret_key = SECRET
@@ -16,9 +19,15 @@ app.secret_key = SECRET
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    form = LoginForm.LoginForm(request.form)
+    user_repository = UserRepository(session, ModelBase, DBEngine)
+    form = LoginForm(request.form)
 
     if request.method == 'POST':
+        user = user_repository.get_user_by_login(form.Login.data)
+
+        if len(user) == 0:
+            return render_template('login.html', form=form, failed_login=True)
+
         res = make_response("")
         res.set_cookie('user', form.Login.data, max_age=None)
         res.set_cookie('token', form.Password.data, max_age=None)
@@ -28,7 +37,7 @@ def index():
     if 'token' in request.cookies:
         return render_template('page.html', user=request.cookies['user'])
     else:
-        return render_template('login.html', form=form)
+        return render_template('login.html', form=form, failed_login=False)
 
 
 @app.route('/logout', methods=['GET'])
@@ -49,11 +58,15 @@ def page():
 def list_lectures():
     user_login = request.cookies['user']
     lectures_repository = LecturesRepository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
     lectures = lectures_repository.get_lectures_of_user(user_login)
-    form = LectureForm.LectureForm(request.form)
+    form = LectureForm(request.form)
 
     if request.method == 'POST':
+        new_lecture = Lecture(header=form.Header.data, content=form.Content.data, userlogin=user_login)
+        lectures_repository.create(new_lecture)
+        unit_of_work.commit()
         return redirect('/lecture')
 
-    return render_template('lecture.html', lectures=lectures, form=form, user=request.cookies['user'])
+    return render_template('lecture.html', lectures=lectures, form=form, user=user_login)
 

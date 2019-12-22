@@ -119,7 +119,24 @@
         <p>Source code is <a href="https://github.com/antonAce/dbis-lab">here</a>!</p>
       </div>
 
+        {% if failed_login %}
+
       <div class="form-label-group">
+        {{ form.Login(class_="form-control is-invalid") }}
+        <label for="inputLogin">Login</label>
+      </div>
+
+      <div class="form-label-group">
+        {{ form.Password(class_="form-control is-invalid") }}
+        <label for="inputPassword">Password</label>
+          <div class="invalid-feedback">
+        Wrong username or password!
+        </div>
+      </div>
+
+        {% else %}
+
+        <div class="form-label-group">
         {{ form.Login(class_="form-control") }}
         <label for="inputLogin">Login</label>
       </div>
@@ -128,6 +145,8 @@
         {{ form.Password(class_="form-control") }}
         <label for="inputPassword">Password</label>
       </div>
+
+        {% endif %}
 
       <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       <p class="mt-5 mb-3 text-muted text-center">By KM-62 student Kozyriev Anton</p>
