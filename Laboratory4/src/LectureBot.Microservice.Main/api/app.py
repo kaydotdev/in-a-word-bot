@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, make_response
 
-from dal.repository import Repository, UnitOfWork, ServiceLocator
-from dal.models import Role, User, Lecture, UserHasResources, Resource, Component, Attribute
+from dal.repository.LecturesRepository import LecturesRepository
+from dal.repository.Repository import Repository
+from dal.repository.UnitOfWork import UnitOfWork
+
+from dal.models import User, Lecture
 from dal.dbcontext import *
 
-from api.forms import RoleForm, LectureForm, ResourceForm, RoleEditForm, LectureEditForm, ResourceEditForm, LoginForm
+from api.forms import LectureForm, LectureEditForm, LoginForm
 from api.settings.launch import SECRET
 
 app = Flask(__name__)
@@ -44,7 +47,7 @@ def page():
 
 @app.route('/user', methods=['GET'])
 def list_users():
-    repository = Repository.Repository(session, ModelBase, DBEngine)
+    repository = Repository(session, ModelBase, DBEngine)
     users = repository.get_all(User.User)
 
     return render_template('user.html', users=users, user=request.cookies['user'])
@@ -52,15 +55,12 @@ def list_users():
 
 @app.route('/lecture', methods=['GET', 'POST'])
 def list_lectures():
-    repository = Repository.Repository(session, ModelBase, DBEngine)
-    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
-    lectures = repository.get_all(Lecture.Lecture)
+    user_login = request.cookies['user']
+    lectures_repository = LecturesRepository(session, ModelBase, DBEngine)
+    lectures = lectures_repository.get_lectures_of_user(user_login)
     form = LectureForm.LectureForm(request.form)
 
     if request.method == 'POST':
-        new_lecture = Lecture.Lecture(header=form.Header.data, content=form.Content.data, userlogin=form.Owner.data)
-        repository.create(new_lecture)
-        unit_of_work.commit()
         return redirect('/lecture')
 
     return render_template('lecture.html', lectures=lectures, form=form, user=request.cookies['user'])
@@ -68,8 +68,8 @@ def list_lectures():
 
 @app.route('/lecture/delete/<identity>', methods=['GET'])
 def delete_lecture(identity):
-    repository = Repository.Repository(session, ModelBase, DBEngine)
-    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    repository = Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
     repository.drop(Lecture.Lecture, identity, True)
     unit_of_work.commit()
     return redirect('/lecture')
@@ -84,8 +84,8 @@ def edit_lecture(identity):
 
 @app.route('/lectureedit', methods=['POST'])
 def save_changes_lecture():
-    repository = Repository.Repository(session, ModelBase, DBEngine)
-    unit_of_work = UnitOfWork.UnitOfWork(session, ModelBase)
+    repository = Repository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
     form = LectureEditForm.LectureEditForm(request.form)
 
     new_lecture = Lecture.Lecture(header=form.Header.data, content=form.Content.data, userlogin=form.Owner.data)

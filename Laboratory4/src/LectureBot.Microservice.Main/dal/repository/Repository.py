@@ -8,7 +8,7 @@ class Repository(object):
         self.ModelBase = model_base
         self.ModelBase.metadata.create_all(self.DBEngine)
 
-    def __map_entity(self, entity_model, entity):
+    def __map_entity__(self, entity_model, entity):
         mapped_values = {}
 
         for item in entity_model.__dict__.items():
@@ -26,20 +26,18 @@ class Repository(object):
     def get_by_id(self, entity_model, identity):
         return self.Session.query(entity_model).filter_by(Id=identity).first()
 
-    def get_by_raw_query(self, query):
-        return self.Session.query(query)
-
     def create(self, entity):
         self.Session.add(entity)
 
     def update(self, entity_model, entity, identity, is_autoincrement):
         if is_autoincrement:
-            self.Session.query(entity_model).filter_by(Id=identity).update(self.__map_entity(entity_model, entity))
+            self.Session.query(entity_model).filter_by(Id=identity).update(self.__map_entity__(entity_model, entity))
         else:
-            self.Session.query(entity_model).filter_by(URL=identity).update(self.__map_entity(entity_model, entity))
+            self.Session.query(entity_model).filter_by(URL=identity).update(self.__map_entity__(entity_model, entity))
 
     def drop(self, entity_model, identity, is_autoincrement):
         if is_autoincrement:
             self.Session.query(entity_model).filter_by(Id=identity).delete()
         else:
             self.Session.query(entity_model).filter_by(URL=identity).delete()
+
