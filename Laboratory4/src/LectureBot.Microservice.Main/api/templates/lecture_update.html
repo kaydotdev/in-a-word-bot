@@ -1,0 +1,29 @@
+{% extends "page.html" %}
+
+{% block content %}
+
+<div class="update-form">
+    <form action="{{url_for('update_lecture')}}" method="post">
+            {{ form.id }}
+        
+          <div class="form-group row">
+            <label for="inputHeader" class="col-sm-2 col-form-label">New lecture header</label>
+            <div class="col-sm-10">
+             {{ form.Header(class_="form-control") }}
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="inputContent" class="col-sm-2 col-form-label">New lecture content</label>
+            <div class="col-sm-10">
+             {{ form.Content(class_="form-control") }}
+            </div>
+          </div>
+            <div class="form-group row">
+            <div class="col-sm-10">
+              {{ form.Submit(class_="btn btn-primary") }}
+            </div>
+          </div>
+    </form>
+</div>
+
+{% endblock %}

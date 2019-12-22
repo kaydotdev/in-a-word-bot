@@ -80,20 +80,28 @@ def list_lectures():
 def delete_lecture(identity):
     repository = LecturesRepository(session, ModelBase, DBEngine)
     unit_of_work = UnitOfWork(session, ModelBase)
-    repository.drop(Lecture.Lecture, identity, True)
+    repository.drop_lecture(identity)
     unit_of_work.commit()
     return redirect('/lecture')
 
 
 @app.route('/lecture/edit/<identity>', methods=['GET'])
 def edit_lecture(identity):
+    user_login = request.cookies['user']
     form = LectureEditForm()
     form.id.data = identity
-    return render_template('lectureedit.html', identity=identity, form=form)
+
+    lectures_repository = LecturesRepository(session, ModelBase, DBEngine)
+
+    form.Header.data = lectures_repository.get_lecture_by_id(identity).Header
+    form.Content.data = lectures_repository.get_lecture_by_id(identity).Content
+
+    return render_template('lecture_update.html', identity=identity, form=form, user=user_login)
 
 
-@app.route('/lecture_update', methods=['POST'])
+@app.route('/update_lecture', methods=['POST'])
 def update_lecture():
+    user_login = request.cookies['user']
     repository = LecturesRepository(session, ModelBase, DBEngine)
     unit_of_work = UnitOfWork(session, ModelBase)
     form = LectureEditForm(request.form)
@@ -101,7 +109,7 @@ def update_lecture():
     new_lecture = Lecture(header=form.Header.data, content=form.Content.data, userlogin=user_login)
     new_lecture.Id = form.id.data
 
-    repository.update(Lecture.Lecture, new_lecture, form.id.data, True)
+    repository.update_lecture(form.id.data, new_lecture)
     unit_of_work.commit()
     return redirect('/lecture')
 

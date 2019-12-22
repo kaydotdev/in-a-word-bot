@@ -1,15 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import HiddenField, StringField, SubmitField, validators
+from wtforms import HiddenField, StringField, SubmitField, validators, TextAreaField
 
 
 class LectureEditForm(FlaskForm):
     id = HiddenField("Id")
-
-    Owner = StringField("Owner login: ", [
-        validators.DataRequired("Owner login cannot be empty!")
-    ], render_kw={"placeholder": "Owner",
-                  "class": "form-control",
-                  "id": "inputOwner"})
 
     Header = StringField("Lecture header: ", [
         validators.DataRequired("Lecture header cannot be empty!")
@@ -17,7 +11,7 @@ class LectureEditForm(FlaskForm):
                   "class": "form-control",
                   "id": "inputHeader"})
 
-    Content = StringField("Lecture content: ", [
+    Content = TextAreaField("Lecture content: ", [
         validators.DataRequired("Lecture content cannot be empty!")
     ], render_kw={"placeholder": "Content",
                   "class": "form-control",
