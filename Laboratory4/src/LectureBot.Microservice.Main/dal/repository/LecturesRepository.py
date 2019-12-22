@@ -15,3 +15,9 @@ class LecturesRepository(Repository):
 
     def get_lectures_of_user(self, user_login):
         return self.Session.query(Lecture).filter_by(UserLogin=user_login).all()
+
+    def update_lecture(self, identity, entity):
+        self.Session.query(Lecture).filter_by(Id=identity).update(self.map_entity(entity))
+
+    def drop_lecture(self, identity):
+        self.Session.query(Lecture).filter_by(Id=identity).delete()

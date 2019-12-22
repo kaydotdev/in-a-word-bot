@@ -6,6 +6,7 @@ from dal.repository.UnitOfWork import UnitOfWork
 
 from dal.dbcontext import *
 
+from api.forms.LectureEditForm import LectureEditForm
 from api.forms.LectureForm import LectureForm
 from api.forms.LoginForm import LoginForm
 
@@ -73,4 +74,34 @@ def list_lectures():
         return redirect('/lecture')
 
     return render_template('lecture.html', lectures=lectures, form=form, user=user_login, lectures_count=l_count[0])
+
+
+@app.route('/lecture/delete/<identity>', methods=['GET'])
+def delete_lecture(identity):
+    repository = LecturesRepository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
+    repository.drop(Lecture.Lecture, identity, True)
+    unit_of_work.commit()
+    return redirect('/lecture')
+
+
+@app.route('/lecture/edit/<identity>', methods=['GET'])
+def edit_lecture(identity):
+    form = LectureEditForm()
+    form.id.data = identity
+    return render_template('lectureedit.html', identity=identity, form=form)
+
+
+@app.route('/lecture_update', methods=['POST'])
+def update_lecture():
+    repository = LecturesRepository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
+    form = LectureEditForm(request.form)
+
+    new_lecture = Lecture(header=form.Header.data, content=form.Content.data, userlogin=user_login)
+    new_lecture.Id = form.id.data
+
+    repository.update(Lecture.Lecture, new_lecture, form.id.data, True)
+    unit_of_work.commit()
+    return redirect('/lecture')
 
