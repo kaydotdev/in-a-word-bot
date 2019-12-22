@@ -9,12 +9,17 @@ from dal.repository.UnitOfWork import UnitOfWork
 from dal.dbcontext import *
 
 from api.forms.LectureEditForm import LectureEditForm
+from api.forms.ResourceEditForm import ResourceEditForm
+
 from api.forms.LectureForm import LectureForm
+from api.forms.ResourceForm import ResourceForm
+
 from api.forms.LoginForm import LoginForm
 
 from api.settings.launch import SECRET
 
 from dal.models.Lecture import Lecture
+from dal.models.Resource import Resource
 
 app = Flask(__name__)
 app.secret_key = SECRET
@@ -136,4 +141,48 @@ def profile():
                            lectures_count=l_count,
                            user_role=r_user,
                            user_resources=res_user)
+
+
+@app.route('/resources', methods=['GET', 'POST'])
+def list_resources():
+    user_login = request.cookies['user']
+    resource_repository = ResourceRepository(session, ModelBase, DBEngine)
+    query_resources = resource_repository.get_resources_of_user(user_login)
+
+    user_resources = [Resource(res.URL, res.Description, res.TimesVisited) for res in query_resources]
+
+    resource_repository = ResourceRepository(session, ModelBase, DBEngine)
+    resources_of_user = resource_repository.get_amount_of_resources_of_user(user_login)
+    r_count = [str(r.URLS) for r in resources_of_user][0]
+
+    unit_of_work = UnitOfWork(session, ModelBase)
+
+    form = ResourceForm(request.form)
+
+    if request.method == 'POST':
+        new_resource = Resource(url=form.URL.data, description=form.Description.data, times_visited=1)
+        resource_repository.create(new_resource)
+        unit_of_work.commit()
+        resource_repository.insert_user_and_resource_relation(user_login, new_resource.URL)
+        unit_of_work.commit()
+        return redirect('/resources')
+
+    return render_template('resource.html',
+                           user=user_login,
+                           user_resources=user_resources,
+                           resources_count=r_count,
+                           form=form)
+
+
+@app.route("/resource/edit/resource='<identity>'", methods=['GET'])
+def edit_resource(identity):
+    user_login = request.cookies['user']
+    form = LectureEditForm()
+
+    lectures_repository = LecturesRepository(session, ModelBase, DBEngine)
+
+    form.Header.data = lectures_repository.get_lecture_by_id(identity).Header
+    form.Content.data = lectures_repository.get_lecture_by_id(identity).Content
+
+    return render_template('resource_update.html', identity=identity, form=form, user=user_login)
 

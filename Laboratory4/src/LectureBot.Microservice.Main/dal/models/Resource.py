@@ -11,7 +11,7 @@ class Resource(ModelBase):
     Description = Column(String, nullable=False)
     TimesVisited = Column(Integer, nullable=False)
 
-    def __init__(self, url, description):
+    def __init__(self, url, description, times_visited):
         self.URL = url
         self.Description = description
-        self.TimesVisited = 1
+        self.TimesVisited = times_visited
