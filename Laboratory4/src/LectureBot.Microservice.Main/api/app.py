@@ -60,6 +60,10 @@ def list_lectures():
     lectures_repository = LecturesRepository(session, ModelBase, DBEngine)
     unit_of_work = UnitOfWork(session, ModelBase)
     lectures = lectures_repository.get_lectures_of_user(user_login)
+    lectures_count = lectures_repository.get_amount_of_lectures_of_user(user_login)
+
+    l_count = [str(lecture_count.Lectures) for lecture_count in lectures_count]
+
     form = LectureForm(request.form)
 
     if request.method == 'POST':
@@ -68,5 +72,5 @@ def list_lectures():
         unit_of_work.commit()
         return redirect('/lecture')
 
-    return render_template('lecture.html', lectures=lectures, form=form, user=user_login)
+    return render_template('lecture.html', lectures=lectures, form=form, user=user_login, lectures_count=l_count[0])
 

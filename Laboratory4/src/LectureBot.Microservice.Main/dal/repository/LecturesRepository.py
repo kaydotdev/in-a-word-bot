@@ -8,8 +8,9 @@ class LecturesRepository(Repository):
 
     def get_amount_of_lectures_of_user(self, user_login):
         return self.DBEngine.execute(f'''
-        SELECT COUNT("ResourceURL") FROM "UserHasResources"
-        WHERE "UserLogin" = '{user_login};
+        SELECT COUNT(*) AS "Lectures" 
+        FROM "Lecture"
+        WHERE "UserLogin" = '{user_login}';
         ''')
 
     def get_lectures_of_user(self, user_login):
