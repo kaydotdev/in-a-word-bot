@@ -6,10 +6,23 @@
 
 <br>
 
-<form class="lecture_form" action="{{url_for('make_lecture')}}" method="post">
+<form class="lecture_form" action="{{url_for('list_lectures')}}" method="post">
     <div class="row">
         <div class="col">
           {{ form.Header(class_="form-control") }}
+        </div>
+    </div>
+
+    <br>
+
+    <button id="lecture-generator" class="btn btn-success">Generate lecture!</button>
+
+    <br>
+    <br>
+
+    <div class="row">
+        <div class="col">
+          {{ form.Content(class_="form-control") }}
         </div>
     </div>
 
@@ -24,16 +37,14 @@
 
 <br>
 
-<textarea class="form-control" id="Content" name="Content" placeholder="Content: "></textarea>
-
 <script>
     $(function() {
-      $('.lecture_form').submit(function(e) {
+      $('#lecture-generator').click(function(e) {
         e.preventDefault();
-        var $form = $(this);
+        var $form = $('form.lecture_form');
         $.ajax({
-          type: $form.attr('method'),
-          url: $form.attr('action'),
+          type: 'POST',
+          url: '/make_lecture',
           data: $form.serialize()
         }).done(function(data){
             console.log(data)

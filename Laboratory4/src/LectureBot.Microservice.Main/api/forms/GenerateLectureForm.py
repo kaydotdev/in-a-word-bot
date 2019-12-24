@@ -7,4 +7,8 @@ class GenerateLectureForm(FlaskForm):
         validators.DataRequired("Lecture header cannot be empty!")
     ], render_kw={"placeholder": "Header for a new lecture"})
 
-    Submit = SubmitField("Generate")
+    Content = TextAreaField("Brand-new lecture content (generated automatically)", [
+        validators.DataRequired("Lecture content cannot be empty!")
+    ], render_kw={"placeholder": "Brand-new lecture content (generated automatically)"})
+
+    Submit = SubmitField("Save lecture")

@@ -281,4 +281,7 @@ def lecture_generator():
 @app.route('/make_lecture', methods=['POST'])
 def make_lecture():
     form = GenerateLectureForm(request.form)
-    return ping_ai_service(form.Header.data)
+    if form.Header.data:
+        return ping_ai_service(form.Header.data)
+    else:
+        return ""
