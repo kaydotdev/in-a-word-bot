@@ -1,0 +1,48 @@
+{% extends "page.html" %}
+
+{% block content %}
+
+<h5>Generate new lecture:</h5>
+
+<br>
+
+<form class="lecture_form" action="{{url_for('make_lecture')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.Header(class_="form-control") }}
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+<br>
+
+<textarea class="form-control" id="Content" name="Content" placeholder="Content: "></textarea>
+
+<script>
+    $(function() {
+      $('.lecture_form').submit(function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        $.ajax({
+          type: $form.attr('method'),
+          url: $form.attr('action'),
+          data: $form.serialize()
+        }).done(function(data){
+            console.log(data)
+          $('textarea.form-control').val(data)
+        }).fail(function() {
+          $('textarea.form-control').val("Sorry, generating service is not available now!")
+        });
+      });
+    });
+</script>
+
+{% endblock %}

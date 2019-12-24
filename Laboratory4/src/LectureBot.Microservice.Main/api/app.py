@@ -11,6 +11,7 @@ from dal.dbcontext import *
 from api.forms.LectureEditForm import LectureEditForm
 from api.forms.ResourceEditForm import ResourceEditForm
 
+from api.forms.GenerateLectureForm import GenerateLectureForm
 from api.forms.LectureForm import LectureForm
 from api.forms.ResourceForm import ResourceForm
 
@@ -18,6 +19,7 @@ from api.forms.LoginForm import LoginForm
 from api.forms.RegisterForm import RegisterForm
 
 from api.settings.launch import SECRET
+from api.settings.urls import AI_SERVICE_URL
 
 from dal.models.Lecture import Lecture
 from dal.models.Resource import Resource
@@ -27,6 +29,8 @@ from datetime import date
 
 import hmac
 import hashlib
+import requests
+
 
 app = Flask(__name__)
 app.secret_key = SECRET
@@ -34,6 +38,18 @@ app.secret_key = SECRET
 
 def get_password_hash(salt, password):
     return hmac.new(bytes(salt, 'UTF-8'), msg=bytes(password, 'UTF-8'), digestmod=hashlib.sha256).hexdigest().upper()
+
+
+def ping_ai_service(theme):
+    req = requests.post(AI_SERVICE_URL, json={'theme': theme})
+
+    if req.status_code == 500:
+        return "Sorry, generating service is not available now!"
+    elif req.status_code == 400:
+        return "Wrong input data!"
+    else:
+        response = req.content
+        return response
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -252,3 +268,17 @@ def delete_resource():
     res.headers['location'] = url_for('list_resources')
     return res, 302
 
+
+@app.route('/new_lecture', methods=['GET', 'POST'])
+def lecture_generator():
+    form = GenerateLectureForm()
+    user_login = request.cookies['user']
+    return render_template('new_lecture.html',
+                           form=form,
+                           user=user_login)
+
+
+@app.route('/make_lecture', methods=['POST'])
+def make_lecture():
+    form = GenerateLectureForm(request.form)
+    return ping_ai_service(form.Header.data)
