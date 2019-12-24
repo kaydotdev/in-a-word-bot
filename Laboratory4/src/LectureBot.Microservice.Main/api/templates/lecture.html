@@ -1,0 +1,55 @@
+{% extends "page.html" %}
+
+{% block content %}
+
+<h5>Save lecture manually:</h5>
+
+<br>
+
+<form action="{{url_for('list_lectures')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.Header(class_="form-control") }}
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col">
+          {{ form.Content(class_="form-control") }}
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+<br>
+<br>
+
+<h2>You have {{lectures_count}} saved lectures</h2>
+
+<br>
+<br>
+
+{% for lecture in lectures %}
+
+<br>
+<br>
+
+<ul class="list-inline">
+  <li class="list-inline-item"><strong>{{ lecture.Header }}</strong></li>
+  <li class="list-inline-item"><a href="/lecture/edit/{{lecture.Id}}" class="btn btn-success">Edit</a></li>
+  <li class="list-inline-item"><a href="/lecture/delete/{{lecture.Id}}" class="btn btn-danger">Delete</a></li>
+</ul>
+
+<p>{{ lecture.Content }}</p>
+{% endfor %}
+
+{% endblock %}
