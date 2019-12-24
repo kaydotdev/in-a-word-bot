@@ -15,14 +15,25 @@ from api.forms.LectureForm import LectureForm
 from api.forms.ResourceForm import ResourceForm
 
 from api.forms.LoginForm import LoginForm
+from api.forms.RegisterForm import RegisterForm
 
 from api.settings.launch import SECRET
 
 from dal.models.Lecture import Lecture
 from dal.models.Resource import Resource
+from dal.models.User import User
+
+from datetime import date
+
+import hmac
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = SECRET
+
+
+def get_password_hash(salt, password):
+    return hmac.new(bytes(salt, 'UTF-8'), msg=bytes(password, 'UTF-8'), digestmod=hashlib.sha256).hexdigest().upper()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -46,6 +57,21 @@ def index():
         return render_template('page.html', user=request.cookies['user'])
     else:
         return render_template('login.html', form=form, failed_login=False)
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def register():
+    user_repository = UserRepository(session, ModelBase, DBEngine)
+    unit_of_work = UnitOfWork(session, ModelBase)
+    form = RegisterForm(request.form)
+
+    if request.method == 'POST':
+        new_user = User(login=form.Login.data, password=str(get_password_hash(SECRET, form.Password.data)), regdate=str(date.today()), roleid=2)
+        user_repository.create(new_user)
+        unit_of_work.commit()
+        return redirect('/')
+
+    return render_template('register.html', form=form, failed_login=False)
 
 
 @app.route('/logout', methods=['GET'])
@@ -225,3 +251,4 @@ def delete_resource():
     res.set_cookie('resource_url', '', max_age=0)
     res.headers['location'] = url_for('list_resources')
     return res, 302
+

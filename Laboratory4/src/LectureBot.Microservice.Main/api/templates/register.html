@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lectures Bot Login</title>
+    <title>Lectures Bot Register</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
@@ -113,25 +113,29 @@
     </style>
 </head>
 <body>
-    <form class="form-signin" action="{{url_for('index')}}" method="post">
+    <form class="form-signin" action="{{url_for('register')}}" method="post">
       <div class="text-center mb-4">
-        <h1 class="h3 mb-3 font-weight-normal">Lectures Bot DBIS</h1>
-        <p>Source code is <a href="https://github.com/antonAce/dbis-lab">here</a>!</p>
-        <p>Newcomer? Sign up <a href="/signup">here</a>!</p>
+        <h1 class="h3 mb-3 font-weight-normal">Become a new member!</h1>
+        <p>Already signed up? Go <a href="/">here</a>!</p>
       </div>
 
-        {% if failed_login %}
+        {% if failed_register %}
 
-      <div class="form-label-group">
-        {{ form.Login(class_="form-control is-invalid") }}
-        <label for="inputLogin">Login</label>
-      </div>
+        <div class="form-label-group">
+          {{ form.Login(class_="form-control is-invalid") }}
+          <label for="inputLogin">Login</label>
+        </div>
 
-      <div class="form-label-group">
-        {{ form.Password(class_="form-control is-invalid") }}
-        <label for="inputPassword">Password</label>
-          <div class="invalid-feedback">
-        Wrong username or password!
+        <div class="form-label-group">
+          {{ form.Password(class_="form-control is-invalid") }}
+          <label for="inputPassword">Password</label>
+        </div>
+
+        <div class="form-label-group">
+          {{ form.ConfirmPassword(class_="form-control is-invalid") }}
+        <label for="inputPasswordConfirm">Confirm password</label>
+        <div class="invalid-feedback">
+            Input credentials are not valid!
         </div>
       </div>
 
@@ -147,9 +151,14 @@
         <label for="inputPassword">Password</label>
       </div>
 
+        <div class="form-label-group">
+        {{ form.ConfirmPassword(class_="form-control") }}
+        <label for="inputPasswordConfirm">Confirm password</label>
+      </div>
+
         {% endif %}
 
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
       <p class="mt-5 mb-3 text-muted text-center">By KM-62 student Kozyriev Anton</p>
     </form>
 </body>
