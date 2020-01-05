@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS "LectureBotDBIS"."UserLectures";
+DROP TABLE IF EXISTS "LectureBotDBIS"."Resources";
+
+DROP KEYSPACE IF EXISTS "LectureBotDBIS";
