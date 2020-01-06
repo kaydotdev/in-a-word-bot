@@ -76,11 +76,11 @@ class LecturesRepository(Repository):
 
         self.session.execute(
             insert_lecture_query,
-            (lecture.login,
-             lecture.lecture_header,
-             lecture.lecture_status,
-             lecture.lecture_content,
-             lecture.lecture_creation_date))
+            (lecture.User_Login,
+             lecture.Header,
+             lecture.Status,
+             lecture.Content,
+             lecture.Creation_Date))
 
     def update_lecture_fields(self, lecture):
         update_lecture_fields_query = SimpleStatement(
@@ -93,11 +93,11 @@ class LecturesRepository(Repository):
 
         self.session.execute(
             update_lecture_fields_query,
-            (lecture.login,
-             lecture.lecture_header,
-             lecture.lecture_status,
-             lecture.lecture_content,
-             lecture.lecture_creation_date))
+            (lecture.Content,
+             lecture.Status,
+             lecture.Creation_Date,
+             lecture.User_Login,
+             lecture.Header))
 
     def delete_lecture_by_keys(self, login, header):
         delete_lecture_by_keys_query = SimpleStatement(
