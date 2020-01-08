@@ -1,3 +1,4 @@
+from bll.dto.UserDTO import UserDTO
 from bll.services.PasswordHashGeneratingService import PasswordHashGeneratingService
 
 from dal.models.User import User
@@ -50,3 +51,12 @@ class UserService:
             return "User was successfully promoted!", 200
         except Exception:
             return "Oops, something went wrong!", 500
+
+    def get_user_by_login(self, login):
+        user = self.user_repository.get_user_by_key(login)[0]
+        return UserDTO(
+            login=user.Login,
+            password=user.Password,
+            registration_date=user.RegistrationDate,
+            role=user.Role
+        )

@@ -109,3 +109,13 @@ def api_user_promotion():
 
     status_message, status_code = user_service.promote_user(user_login, new_user_role)
     return status_message
+
+
+@app.route('/api/user/role/<login>', methods=['GET'])
+def api_get_role_by_login(login):
+    user = user_service.get_user_by_login(login)
+
+    if user:
+        return user.Role
+    else:
+        return "", 204
