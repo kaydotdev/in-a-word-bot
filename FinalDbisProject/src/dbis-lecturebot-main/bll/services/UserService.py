@@ -1,10 +1,10 @@
-from bll.dto.UserDTO import UserDTO
 from bll.services.PasswordHashGeneratingService import PasswordHashGeneratingService
 
 from dal.models.User import User
 from dal.repositories.UserRepository import UserRepository
 
 
+# noinspection PyBroadException
 class UserService:
     def __init__(self, secret):
         self.user_repository = UserRepository()
@@ -40,3 +40,13 @@ class UserService:
             return "Authentication is successful", 200
         else:
             return "Wrong username or password", 400
+
+    def promote_user(self, user_login, new_role):
+        user_to_promote = self.user_repository.get_user_by_key(user_login)[0]
+        user_to_promote.Role = new_role
+
+        try:
+            self.user_repository.update_user_fields(user_to_promote)
+            return "User was successfully promoted!", 200
+        except Exception:
+            return "Oops, something went wrong!", 500

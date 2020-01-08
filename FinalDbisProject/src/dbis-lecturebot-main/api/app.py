@@ -100,3 +100,12 @@ def api_user_auth():
 
     status_message, status_code = user_service.auth_user(new_user)
     return status_message
+
+
+@app.route('/api/user', methods=['PUT'])
+def api_user_promotion():
+    user_login = str(request.json['login'])
+    new_user_role = str(request.json['new_role'])
+
+    status_message, status_code = user_service.promote_user(user_login, new_user_role)
+    return status_message
