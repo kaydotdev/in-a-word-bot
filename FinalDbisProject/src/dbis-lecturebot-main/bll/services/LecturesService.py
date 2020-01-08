@@ -50,16 +50,15 @@ class LecturesService:
             return "This lecture doesn't exist!", 400
         else:
             try:
-                lecture_to_edit = lectures[0]
                 if old_lecture_header != new_lecture.Header:
                     self.lecture_repository.delete_lecture_by_keys(login, old_lecture_header)
 
                     lecture_to_insert = Lecture(
                         user_login=login,
-                        header=lecture_to_edit.Header,
-                        content=lecture_to_edit.Content,
-                        status=lecture_to_edit.Status,
-                        creation_date=lecture_to_edit.Creation_Date
+                        header=new_lecture.Header,
+                        content=new_lecture.Content,
+                        status=new_lecture.Status,
+                        creation_date=new_lecture.Creation_Date
                     )
 
                     self.lecture_repository.insert_lecture(lecture_to_insert)

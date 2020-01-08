@@ -3,8 +3,6 @@ from flask import Flask, make_response, request
 import datetime
 import json
 
-from dal.repositories.LectureRepository import LecturesRepository
-
 from api.settings.apisettings import API_SECRET
 
 from bll.services.UserService import UserService
@@ -80,13 +78,6 @@ def api_lecture():
         lecture_service.delete_lecture(user, lecture)
         response = make_response("Lecture was successfully deleted!")
         return response, 200
-
-
-@app.route('/api/lecture/<login>', methods=['GET'])
-def api_lectures_of_owner(login):
-    lecture_repository = LecturesRepository()
-    lectures = lecture_repository.get_lectures_by_foreign_key(login)
-    return serialize_array(lectures), 200
 
 
 @app.route('/api/user/register', methods=['POST'])
