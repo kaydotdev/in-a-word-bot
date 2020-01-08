@@ -5,7 +5,7 @@
 <h5>Brand-new lecture:</h5>
 
 <div class="alert alert-warning" role="alert">
-  Note: Every header of lectures should be unique!
+  <a href="#" class="alert-link">Note:</a> Every header of lectures should be unique!
 </div>
 
 <br>
@@ -89,12 +89,24 @@
 <ul class="list-inline">
   <li class="list-inline-item"><strong>Date: {{lecture.Creation_Date}}</strong></li>
   <li class="list-inline-item"><strong>Status: {{lecture.Status}}</strong></li>
-  <li class="list-inline-item"><a href="/lecture/edit/{{lecture.Id}}" class="btn btn-success">Edit</a></li>
-  <li class="list-inline-item"><a href="/lecture/delete/{{lecture.Id}}" class="btn btn-danger">Delete</a></li>
+  <li class="list-inline-item"><a href="#" onclick="lectureEdit('{{lecture.Header}}');" class="btn btn-success">Edit</a></li>
+  <li class="list-inline-item"><a href="#" onclick="lectureDrop('{{lecture.Header}}');" class="btn btn-danger">Delete</a></li>
 </ul>
 
 <p>{{lecture.Content}}</p>
 
 {% endfor %}
+
+<script>
+    function lectureEdit(header) {
+        document.cookie = "lecture_header=" + header;
+        document.location.href = "/resource/edit";
+    }
+
+    function lectureDrop(header) {
+        document.cookie = "lecture_header=" + header;
+        document.location.href = "/resource/delete";
+    }
+</script>
 
 {% endblock %}
