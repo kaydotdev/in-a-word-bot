@@ -1,0 +1,71 @@
+{% extends "page.html" %}
+
+{% block content %}
+
+<h5>Add resource:</h5>
+
+<br>
+
+<form action="{{url_for('list_resources')}}" method="post">
+    <div class="row">
+        <div class="col">
+          {{ form.URL(class_="form-control") }}
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col">
+          {{ form.Description(class_="form-control") }}
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+</form>
+
+<br>
+<br>
+
+<h5>You have {{resources_count}} saved resources: </h5>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Times Visited</th>
+      <th scope="col">Description</th>
+        <th scope="col">Edit</th>
+        <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for resources in user_resources %}
+    <tr>
+      <th scope="row"><strong>{{resources.TimesVisited}}</strong></th>
+      <td><a href="{{resources.URL}}">{{resources.Description}}</a></td>
+        <td><a onclick="currentResourceEdit('{{resources.URL}}');" class="btn btn-success">Edit</a></td>
+        <td><a onclick="currentResourceDrop('{{resources.URL}}');" class="btn btn-danger">Delete</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+    function currentResourceEdit(url) {
+        document.cookie = "resource_url=" + url;
+        document.location.href = "/resource/edit";
+    }
+
+    function currentResourceDrop(url) {
+        document.cookie = "resource_url=" + url;
+        document.location.href = "/resource/delete";
+    }
+</script>
+
+{% endblock %}

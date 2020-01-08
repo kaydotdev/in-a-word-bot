@@ -1,12 +1,16 @@
-from flask import Flask, make_response, request
+from flask import Flask, make_response, request, render_template, url_for, redirect
 
 import datetime
 import json
 
 from api.settings.apisettings import API_SECRET
 
+from api.forms.LoginForm import LoginForm
+from api.forms.RegisterForm import RegisterForm
+
 from bll.services.UserService import UserService
 from bll.services.LecturesService import LecturesService
+from bll.services.ResourcesService import ResourcesService
 
 from bll.dto.UserDTO import UserDTO
 from bll.dto.LectureDTO import LectureDTO
@@ -30,6 +34,7 @@ app.secret_key = API_SECRET
 
 user_service = UserService(API_SECRET)
 lecture_service = LecturesService()
+resource_service = ResourcesService()
 
 
 @app.route('/api/lecture', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -123,3 +128,80 @@ def api_get_role_by_login(login):
         return user.Role
     else:
         return "", 204
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    form = LoginForm(request.form)
+
+    if request.method == 'POST':
+        message, status = user_service.auth_user(UserDTO(
+            login=form.Login.data,
+            password=form.Password.data,
+            role=None,
+            registration_date=None
+        ))
+
+        if status == 400:
+            return render_template('login.html',
+                                   form=form,
+                                   message=message)
+
+        res = make_response("")
+        res.set_cookie('user', form.Login.data, max_age=None)
+        res.set_cookie('token', form.Password.data, max_age=None)
+        res.headers['location'] = url_for('page')
+        return res, 302
+
+    if 'token' in request.cookies:
+        return render_template('page.html', user=request.cookies['user'])
+    else:
+        return render_template('login.html',
+                               form=form,
+                               message="")
+
+
+@app.route('/page', methods=['GET'])
+def page():
+    if 'token' in request.cookies:
+        return render_template('page.html', user=request.cookies['user'])
+    else:
+        return redirect('/logout')
+
+
+@app.route('/logout', methods=['GET'])
+def logout():
+    res = make_response("")
+    res.set_cookie('user', '', max_age=0)
+    res.set_cookie('token', '', max_age=0)
+    res.headers['location'] = url_for('index')
+    return res, 302
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def register():
+    form = RegisterForm(request.form)
+
+    if request.method == 'POST':
+        if not form.validate():
+            return render_template('register.html',
+                                   form=form,
+                                   message="Input data is not valid!")
+
+        message, status = user_service.register_user(UserDTO(
+            login=form.Login.data,
+            password=form.Password.data,
+            role="default_user",
+            registration_date=datetime.date.today()
+        ))
+
+        if status == 400:
+            return render_template('register.html',
+                                   form=form,
+                                   message=message)
+        else:
+            return redirect('/')
+
+    return render_template('register.html',
+                           form=form,
+                           message="")

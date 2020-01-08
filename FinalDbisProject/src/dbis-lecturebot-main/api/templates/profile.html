@@ -1,0 +1,25 @@
+{% extends "page.html" %}
+
+{% block content %}
+
+<h1 class="display-4">Profile general information</h1>
+
+<br>
+<br>
+
+<dl class="row">
+  <dt class="col-sm-3">Total amount of lectures</dt>
+  <dd class="col-sm-9">{{lectures_count}}</dd>
+</dl>
+
+<dl class="row">
+  <dt class="col-sm-3">Total amount of resources</dt>
+  <dd class="col-sm-9">{{user_resources}}</dd>
+</dl>
+
+<dl class="row">
+  <dt class="col-sm-3">Account role</dt>
+  <dd class="col-sm-9">{{user_role}}</dd>
+</dl>
+
+{% endblock %}
