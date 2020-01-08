@@ -65,7 +65,15 @@ class ResourceRepository(Repository):
             [login]
         )
 
-        return parse_resources(rows)
+        resources = parse_resources(rows)
+
+        if len(resources) == 1:
+            if resources[0].URL is None:
+                return []
+            else:
+                return resources
+        else:
+            return resources
 
     def insert_resource(self, resource):
         insert_resource_query = SimpleStatement(

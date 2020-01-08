@@ -62,7 +62,15 @@ class LecturesRepository(Repository):
             [login]
         )
 
-        return parse_lectures(rows)
+        lectures = parse_lectures(rows)
+
+        if len(lectures) == 1:
+            if lectures[0].Header is None:
+                return []
+            else:
+                return lectures
+        else:
+            return lectures
 
     def insert_lecture(self, lecture):
         insert_lecture_query = SimpleStatement(
