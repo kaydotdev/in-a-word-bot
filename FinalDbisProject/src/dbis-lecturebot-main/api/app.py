@@ -7,6 +7,7 @@ from api.settings.apisettings import API_SECRET
 
 from api.forms.LoginForm import LoginForm
 from api.forms.RegisterForm import RegisterForm
+from api.forms.LectureForm import LectureForm
 
 from bll.services.UserService import UserService
 from bll.services.LecturesService import LecturesService
@@ -204,4 +205,43 @@ def register():
 
     return render_template('register.html',
                            form=form,
+                           message="")
+
+
+@app.route('/lecture', methods=['GET', 'POST'])
+def list_lectures():
+    user_login = request.cookies['user']
+    lectures = lecture_service.get_all_user_lectures(user_login)
+    lectures_count = lecture_service.get_count_of_user_lectures(user_login)
+    form = LectureForm(request.form)
+
+    if request.method == 'POST':
+        if not form.validate():
+            return render_template('lecture.html',
+                                   form=form,
+                                   message="Input data is not valid!")
+
+        new_lecture = LectureDTO(
+            header=form.Header.data,
+            content=form.Content.data,
+            status="Pending",
+            creation_date=datetime.date.today()
+        )
+        message, status = lecture_service.add_lecture(user_login, new_lecture)
+
+        if status != 200:
+            return render_template('lecture.html',
+                                   lectures=lectures,
+                                   form=form,
+                                   user=user_login,
+                                   lectures_count=lectures_count,
+                                   message=message)
+        else:
+            return redirect('/lecture')
+
+    return render_template('lecture.html',
+                           lectures=lectures,
+                           form=form,
+                           user=user_login,
+                           lectures_count=lectures_count,
                            message="")
