@@ -4,12 +4,14 @@ import datetime
 import json
 
 from dal.repositories.LectureRepository import LecturesRepository
-from dal.models.Lecture import Lecture
 
 from api.settings.apisettings import API_SECRET
 
 from bll.services.UserService import UserService
+from bll.services.LecturesService import LecturesService
+
 from bll.dto.UserDTO import UserDTO
+from bll.dto.LectureDTO import LectureDTO
 
 
 def date_converter(o):
@@ -29,42 +31,53 @@ app = Flask(__name__)
 app.secret_key = API_SECRET
 
 user_service = UserService(API_SECRET)
+lecture_service = LecturesService()
 
 
 @app.route('/api/lecture', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def api_lecture():
-    lecture_repository = LecturesRepository()
-
     if request.method == 'GET':
-        lectures = lecture_repository.get_all_lectures()
+        lectures = lecture_service.get_all_user_lectures('linus__torvalds')
         return serialize_array(lectures), 200
     elif request.method == 'POST':
-        lecture = Lecture(
-            user_login=str(request.json['user_login']),
+        lecture = LectureDTO(
             header=str(request.json['header']),
             content=str(request.json['content']),
             status=str(request.json['status']),
             creation_date=str(request.json['creation_date'])
         )
-        lecture_repository.insert_lecture(lecture)
-        response = make_response("Lecture was successfully added!")
-        return response, 200
+        message, status = lecture_service.add_lecture(str(request.json['user_login']), lecture)
+        response = make_response(message)
+        return response, status
     elif request.method == 'PUT':
-        lecture = Lecture(
-            user_login=str(request.json['user_login']),
+        lecture = LectureDTO(
             header=str(request.json['header']),
             content=str(request.json['content']),
             status=str(request.json['status']),
             creation_date=str(request.json['creation_date'])
         )
-        lecture_repository.update_lecture_fields(lecture)
-        response = make_response("Lecture was successfully modified!")
-        return response, 200
-    elif request.method == 'DELETE':
-        lecture_repository.delete_lecture_by_keys(
+        message, status = lecture_service.edit_lecture(
             str(request.json['user_login']),
-            str(request.json['header'])
+            str(request.json['header']),
+            lecture)
+        response = make_response(message)
+        return response, status
+    elif request.method == 'DELETE':
+        user = UserDTO(
+            login=str(request.json['user_login']),
+            role=None,
+            password=None,
+            registration_date=None
         )
+
+        lecture = LectureDTO(
+            header=str(request.json['header']),
+            content=None,
+            status=None,
+            creation_date=None
+        )
+
+        lecture_service.delete_lecture(user, lecture)
         response = make_response("Lecture was successfully deleted!")
         return response, 200
 
