@@ -245,3 +245,19 @@ def list_lectures():
                            user=user_login,
                            lectures_count=lectures_count,
                            message="")
+
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    user_login = request.cookies['user']
+    count_of_resources = resource_service.get_count_of_user_resources(user_login)
+    count_of_lectures = lecture_service.get_count_of_user_lectures(user_login)
+    user = user_service.get_user_by_login(user_login)
+
+    user.Role = ' '.join(user.Role.split('_')).upper()
+
+    return render_template('profile.html',
+                           user=user_login,
+                           count_of_resources=count_of_resources,
+                           count_of_lectures=count_of_lectures,
+                           user_role=user.Role)
