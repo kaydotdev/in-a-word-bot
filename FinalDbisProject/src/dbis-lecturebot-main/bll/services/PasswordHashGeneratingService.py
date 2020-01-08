@@ -1,5 +1,6 @@
 import hmac
 import hashlib
+import base64
 
 
 class PasswordHashGeneratingService:
@@ -7,6 +8,6 @@ class PasswordHashGeneratingService:
         self.secret = secret
 
     def generate_password_hash(self, password):
-        return hmac.new(bytes(self.secret, 'UTF-8'),
-                        msg=bytes(password, 'UTF-8'),
-                        digestmod=hashlib.sha256).hexdigest().upper()
+        return base64.b64encode(hmac.new(bytes(self.secret, 'UTF-8'),
+                                         msg=bytes(password, 'UTF-8'),
+                                         digestmod=hashlib.sha256).digest())
