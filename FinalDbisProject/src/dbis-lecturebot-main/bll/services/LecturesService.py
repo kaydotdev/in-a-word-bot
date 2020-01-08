@@ -20,6 +20,17 @@ class LecturesService:
 
         return mapped_lectures
 
+    def get_lecture_by_login_and_header(self, login, header):
+        lectures = self.lecture_repository.get_lectures_by_keys(login, header)
+        mapped_lectures = [LectureDTO(
+            header=lecture.Header,
+            content=lecture.Content,
+            status=lecture.Status,
+            creation_date=lecture.Creation_Date
+        ) for lecture in lectures]
+
+        return mapped_lectures
+
     def get_count_of_user_lectures(self, login):
         lectures = self.get_all_user_lectures(login)
         return len(lectures)

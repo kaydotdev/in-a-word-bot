@@ -9,6 +9,8 @@ from api.forms.LoginForm import LoginForm
 from api.forms.RegisterForm import RegisterForm
 from api.forms.LectureForm import LectureForm
 
+from api.forms.LectureEditForm import LectureEditForm
+
 from bll.services.UserService import UserService
 from bll.services.LecturesService import LecturesService
 from bll.services.ResourcesService import ResourcesService
@@ -168,3 +170,53 @@ def profile():
                            count_of_resources=count_of_resources,
                            count_of_lectures=count_of_lectures,
                            user_role=user.Role)
+
+
+@app.route('/lecture/edit', methods=['GET', 'POST'])
+def edit_lecture_page():
+    user_login = request.cookies['user']
+    lecture_to_edit = request.cookies['lecture_header']
+
+    form = LectureEditForm()
+
+    form.Content.data = lecture_service.get_lecture_by_login_and_header(user_login, lecture_to_edit)[0].Content
+    return render_template('lecture_update.html',
+                           form=form,
+                           header=lecture_to_edit,
+                           user=user_login)
+
+
+@app.route('/api/lecture', methods=['POST'])
+def api_lecture():
+    user_login = request.cookies['user']
+    lecture_header = request.cookies['lecture_header']
+    lecture_to_edit = lecture_service.get_lecture_by_login_and_header(user_login, lecture_header)[0]
+
+    form = LectureEditForm(request.form)
+
+    lecture = LectureDTO(
+        header=lecture_to_edit.Header,
+        content=form.Content.data,
+        status=lecture_to_edit.Status,
+        creation_date=lecture_to_edit.Creation_Date
+    )
+
+    message, status = lecture_service.edit_lecture(user_login, lecture_to_edit.Header, lecture)
+    if status == 200:
+        res = make_response("")
+        res.set_cookie('lecture_header', '', max_age=0)
+        res.headers['location'] = url_for('list_lectures')
+        return res, 302
+    else:
+        return redirect('/lecture/edit')
+
+
+@app.route('/lecture/delete', methods=['GET', 'POST'])
+def delete_lecture():
+    user_login = request.cookies['user']
+    lecture_to_delete = request.cookies['lecture_header']
+    lecture_service.delete_lecture(user_login, lecture_to_delete)
+    res = make_response("")
+    res.set_cookie('lecture_header', '', max_age=0)
+    res.headers['location'] = url_for('list_lectures')
+    return res, 302

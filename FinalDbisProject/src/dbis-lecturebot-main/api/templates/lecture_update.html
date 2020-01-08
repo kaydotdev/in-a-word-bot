@@ -3,15 +3,9 @@
 {% block content %}
 
 <div class="update-form">
-    <form action="{{url_for('update_lecture')}}" method="post">
-            {{ form.id }}
-        
-          <div class="form-group row">
-            <label for="inputHeader" class="col-sm-2 col-form-label">New lecture header</label>
-            <div class="col-sm-10">
-             {{ form.Header(class_="form-control") }}
-            </div>
-          </div>
+    <h5>Edit lecture: {{header}}</h5>
+
+    <form action="{{url_for('api_lecture')}}" method="post">
           <div class="form-group row">
             <label for="inputContent" class="col-sm-2 col-form-label">New lecture content</label>
             <div class="col-sm-10">

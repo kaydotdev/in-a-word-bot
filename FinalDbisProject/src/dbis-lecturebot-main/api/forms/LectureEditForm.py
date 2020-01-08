@@ -3,14 +3,6 @@ from wtforms import HiddenField, StringField, SubmitField, validators, TextAreaF
 
 
 class LectureEditForm(FlaskForm):
-    id = HiddenField("Id")
-
-    Header = StringField("Lecture header: ", [
-        validators.DataRequired("Lecture header cannot be empty!")
-    ], render_kw={"placeholder": "Header",
-                  "class": "form-control",
-                  "id": "inputHeader"})
-
     Content = TextAreaField("Lecture content: ", [
         validators.DataRequired("Lecture content cannot be empty!")
     ], render_kw={"placeholder": "Content",
