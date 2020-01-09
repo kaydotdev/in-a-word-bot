@@ -13,6 +13,7 @@ from api.forms.LectureForm import LectureForm
 from api.forms.ResourceForm import ResourceForm
 
 from api.forms.LectureEditForm import LectureEditForm
+from api.forms.ResourceEditForm import ResourceEditForm
 from api.forms.GenerateLectureForm import GenerateLectureForm
 
 from bll.services.UserService import UserService
@@ -303,3 +304,52 @@ def list_resources():
                            message="")
 
 
+@app.route('/resource/edit', methods=['GET'])
+def edit_resource_page():
+    url = request.cookies['resource_url']
+    user_login = request.cookies['user']
+    form = ResourceEditForm()
+
+    form.Description.data = resource_service.get_all_resource_by_login_and_url(user_login, url)[0].Description
+
+    return render_template('resource_update.html',
+                           form=form,
+                           resource_url=url,
+                           user=user_login)
+
+
+@app.route('/api/resource', methods=['POST'])
+def update_resource():
+    url = request.cookies['resource_url']
+    user_login = request.cookies['user']
+    resource_to_edit = resource_service.get_all_resource_by_login_and_url(user_login, url)[0]
+
+    form = ResourceEditForm(request.form)
+
+    resource = ResourceDTO(
+        url=resource_to_edit.URL,
+        description=form.Description.data,
+        times_visited=resource_to_edit.TimesVisited,
+        creation_date=resource_to_edit.Creation_Date
+    )
+
+    message, status = resource_service.edit_resource(user_login, resource.URL, resource)
+
+    if status == 200:
+        res = make_response("")
+        res.set_cookie('resource_url', '', max_age=0)
+        res.headers['location'] = url_for('list_resources')
+        return res, 302
+    else:
+        return redirect('/resource/edit')
+
+
+@app.route('/resource/delete', methods=['GET'])
+def delete_resource():
+    url = request.cookies['resource_url']
+    user_login = request.cookies['user']
+    resource_service.delete_resource(user_login, url)
+    res = make_response("")
+    res.set_cookie('resource_url', '', max_age=0)
+    res.headers['location'] = url_for('list_resources')
+    return res, 302

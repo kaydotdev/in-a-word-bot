@@ -20,6 +20,17 @@ class ResourcesService:
 
         return mapped_resources
 
+    def get_all_resource_by_login_and_url(self, login, url):
+        resources = self.resource_repository.get_resources_by_keys(login, url)
+        mapped_resources = [ResourceDTO(
+            url=resource.URL,
+            description=resource.Description,
+            times_visited=resource.TimesVisited,
+            creation_date=resource.Creation_Date
+        ) for resource in resources]
+
+        return mapped_resources
+
     def get_count_of_user_resources(self, login):
         resources = self.get_all_user_resources(login)
         return len(resources)
