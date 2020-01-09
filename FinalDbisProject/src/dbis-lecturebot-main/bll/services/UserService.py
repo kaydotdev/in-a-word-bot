@@ -60,3 +60,14 @@ class UserService:
             registration_date=user.RegistrationDate,
             role=user.Role
         )
+
+    def get_all_users(self):
+        users = self.user_repository.get_all_users()
+        mapped_users = [UserDTO(
+            login=user.Header,
+            role=user.Role,
+            password=user.Password,
+            registration_date=user.RegistrationDate
+        ) for user in users]
+
+        return mapped_users

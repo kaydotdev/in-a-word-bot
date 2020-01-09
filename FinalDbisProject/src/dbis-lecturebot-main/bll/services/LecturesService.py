@@ -9,6 +9,20 @@ class LecturesService:
     def __init__(self):
         self.lecture_repository = LecturesRepository()
 
+    def get_all_lectures(self):
+        lectures = self.lecture_repository.get_all_lectures()
+        mapped_lectures = [LectureDTO(
+            header=lecture.Header,
+            content=lecture.Content,
+            status=lecture.Status,
+            creation_date=lecture.Creation_Date
+        ) for lecture in lectures]
+
+        return mapped_lectures
+
+    def get_pure_lectures(self):
+        return self.lecture_repository.get_all_lectures()
+
     def get_all_user_lectures(self, login):
         lectures = self.lecture_repository.get_lectures_by_foreign_key(login)
         mapped_lectures = [LectureDTO(

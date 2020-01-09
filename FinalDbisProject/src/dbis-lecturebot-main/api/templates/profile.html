@@ -47,4 +47,44 @@
   </div>
 </div>
 
+{% if pending_lectures %}
+
+<h5>Moderate lectures</h5>
+
+{% for lecture in pending_lectures %}
+
+<br>
+<br>
+
+<ul class="list-inline">
+  <li class="list-inline-item"><strong>{{lecture.Header}}</strong></li>
+</ul>
+
+<ul class="list-inline">
+  <li class="list-inline-item"><strong>Date: {{lecture.Creation_Date}}</strong></li>
+  <li class="list-inline-item"><strong>Status: {{lecture.Status}}</strong></li>
+  <li class="list-inline-item"><a href="#" onclick="approveLecture('{{lecture.Header}}', '{{lecture.User_Login}}');" class="btn btn-success">Approve</a></li>
+  <li class="list-inline-item"><a href="#" onclick="declineLecture('{{lecture.Header}}', '{{lecture.User_Login}}');" class="btn btn-danger">Decline</a></li>
+</ul>
+
+<p>{{lecture.Content}}</p>
+
+{% endfor %}
+
+<script>
+    function approveLecture(header, user) {
+        document.cookie = "lecture_header=" + header;
+        document.cookie = "lecture_user=" + user;
+        document.location.href = "/api/lecture/approve";
+    }
+
+    function declineLecture(header, user) {
+        document.cookie = "lecture_header=" + header;
+        document.cookie = "lecture_user=" + user;
+        document.location.href = "/api/lecture/decline";
+    }
+</script>
+
+{% endif %}
+
 {% endblock %}

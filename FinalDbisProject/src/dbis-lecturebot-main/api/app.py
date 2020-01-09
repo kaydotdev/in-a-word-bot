@@ -50,6 +50,16 @@ def ping_ai_service(theme):
         return response
 
 
+def filter_pending_lectures(lectures):
+    filtered_lectures = []
+
+    for lecture in lectures:
+        if lecture.Status == 'Pending':
+            filtered_lectures.append(lecture)
+
+    return filtered_lectures
+
+
 app = Flask(__name__)
 app.secret_key = API_SECRET
 
@@ -179,10 +189,19 @@ def list_lectures():
 
 @app.route('/profile', methods=['GET'])
 def profile():
+    pending_lectures = []
+    user_list = []
+
     user_login = request.cookies['user']
+
     count_of_resources = resource_service.get_count_of_user_resources(user_login)
     count_of_lectures = lecture_service.get_count_of_user_lectures(user_login)
     user = user_service.get_user_by_login(user_login)
+
+    if user.Role == 'admin':
+        user_list = user_service.get_all_users()
+    elif user.Role == 'moderator':
+        pending_lectures = filter_pending_lectures(lecture_service.get_pure_lectures())
 
     user.Role = ' '.join(user.Role.split('_')).upper()
 
@@ -190,7 +209,9 @@ def profile():
                            user=user_login,
                            count_of_resources=count_of_resources,
                            count_of_lectures=count_of_lectures,
-                           user_role=user.Role)
+                           user_role=user.Role,
+                           pending_lectures=pending_lectures,
+                           user_list=user_list)
 
 
 @app.route('/lecture/edit', methods=['GET', 'POST'])
@@ -353,3 +374,45 @@ def delete_resource():
     res.set_cookie('resource_url', '', max_age=0)
     res.headers['location'] = url_for('list_resources')
     return res, 302
+
+
+@app.route('/api/lecture/approve', methods=['GET'])
+def approve_lecture():
+    user_login = request.cookies['lecture_user']
+    lecture_header = request.cookies['lecture_header']
+
+    lecture_to_edit = lecture_service.get_lecture_by_login_and_header(user_login, lecture_header)[0]
+
+    lecture_to_edit.Status = "Approved"
+
+    message, status = lecture_service.edit_lecture(user_login, lecture_to_edit.Header, lecture_to_edit)
+
+    if status == 200:
+        res = make_response("")
+        res.set_cookie('lecture_header', '', max_age=0)
+        res.set_cookie('lecture_user', '', max_age=0)
+        res.headers['location'] = url_for('profile')
+        return res, 302
+    else:
+        return redirect('/profile')
+
+
+@app.route('/api/lecture/decline', methods=['GET'])
+def decline_lecture():
+    user_login = request.cookies['lecture_user']
+    lecture_header = request.cookies['lecture_header']
+
+    lecture_to_edit = lecture_service.get_lecture_by_login_and_header(user_login, lecture_header)[0]
+
+    lecture_to_edit.Status = "Declined"
+
+    message, status = lecture_service.edit_lecture(user_login, lecture_to_edit.Header, lecture_to_edit)
+
+    if status == 200:
+        res = make_response("")
+        res.set_cookie('lecture_header', '', max_age=0)
+        res.set_cookie('lecture_user', '', max_age=0)
+        res.headers['location'] = url_for('profile')
+        return res, 302
+    else:
+        return redirect('/profile')
