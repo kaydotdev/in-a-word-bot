@@ -10,6 +10,7 @@ from api.settings.apisettings import AI_SERVICE_URL
 from api.forms.LoginForm import LoginForm
 from api.forms.RegisterForm import RegisterForm
 from api.forms.LectureForm import LectureForm
+from api.forms.ResourceForm import ResourceForm
 
 from api.forms.LectureEditForm import LectureEditForm
 from api.forms.GenerateLectureForm import GenerateLectureForm
@@ -20,6 +21,7 @@ from bll.services.ResourcesService import ResourcesService
 
 from bll.dto.UserDTO import UserDTO
 from bll.dto.LectureDTO import LectureDTO
+from bll.dto.ResourceDTO import ResourceDTO
 
 
 def date_converter(o):
@@ -142,7 +144,10 @@ def list_lectures():
     if request.method == 'POST':
         if not form.validate():
             return render_template('lecture.html',
+                                   lectures=lectures,
                                    form=form,
+                                   user=user_login,
+                                   lectures_count=lectures_count,
                                    message="Input data is not valid!")
 
         new_lecture = LectureDTO(
@@ -253,3 +258,48 @@ def make_lecture():
         return ping_ai_service(form.Header.data)
     else:
         return ""
+
+
+@app.route('/resources', methods=['GET', 'POST'])
+def list_resources():
+    user_login = request.cookies['user']
+    resources = resource_service.get_all_user_resources(user_login)
+    resource_count = resource_service.get_count_of_user_resources(user_login)
+
+    form = ResourceForm(request.form)
+
+    if request.method == 'POST':
+        if not form.validate():
+            return render_template('resource.html',
+                                   resources=resources,
+                                   form=form,
+                                   user=user_login,
+                                   resource_count=resource_count,
+                                   message="Input data is not valid!")
+
+        new_resource = ResourceDTO(
+            url=form.URL.data,
+            description=form.Description.data,
+            times_visited=0,
+            creation_date=datetime.date.today()
+        )
+        message, status = resource_service.add_resource(user_login, new_resource)
+
+        if status != 200:
+            return render_template('resource.html',
+                                   resources=resources,
+                                   form=form,
+                                   user=user_login,
+                                   resource_count=resource_count,
+                                   message=message)
+        else:
+            return redirect('/resources')
+
+    return render_template('resource.html',
+                           resources=resources,
+                           form=form,
+                           user=user_login,
+                           resource_count=resource_count,
+                           message="")
+
+

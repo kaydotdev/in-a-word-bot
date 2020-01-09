@@ -7,6 +7,10 @@
 <br>
 
 <form action="{{url_for('list_resources')}}" method="post">
+    {% if message == "" %}
+
+    {{ form.hidden_tag() }}
+
     <div class="row">
         <div class="col">
           {{ form.URL(class_="form-control") }}
@@ -28,29 +32,60 @@
           {{ form.Submit(class_="btn btn-primary") }}
         </div>
     </div>
+
+    {% else %}
+
+    <div class="row">
+        <div class="col">
+          {{ form.URL(class_="form-control is-invalid") }}
+            <div class="invalid-feedback">
+              {{message}}
+          </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col">
+          {{ form.Description(class_="form-control is-invalid") }}
+        </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+        <div class="col-md-1">
+          {{ form.Submit(class_="btn btn-primary") }}
+        </div>
+    </div>
+
+    {% endif %}
 </form>
 
 <br>
 <br>
 
-<h5>You have {{resources_count}} saved resources: </h5>
+<h5>You have {{resource_count}} saved resources: </h5>
 
 <table class="table table-striped">
   <thead>
     <tr>
+      <th scope="col">Creation date</th>
       <th scope="col">Times Visited</th>
       <th scope="col">Description</th>
-        <th scope="col">Edit</th>
-        <th scope="col">Delete</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
     </tr>
   </thead>
   <tbody>
-    {% for resources in user_resources %}
+    {% for resource in resources %}
     <tr>
-      <th scope="row"><strong>{{resources.TimesVisited}}</strong></th>
-      <td><a href="{{resources.URL}}">{{resources.Description}}</a></td>
-        <td><a onclick="currentResourceEdit('{{resources.URL}}');" class="btn btn-success">Edit</a></td>
-        <td><a onclick="currentResourceDrop('{{resources.URL}}');" class="btn btn-danger">Delete</a></td>
+      <th scope="row"><strong>{{resource.Creation_Date}}</strong></th>
+      <th scope="row"><strong>{{resource.TimesVisited}}</strong></th>
+      <td><a href="{{resource.URL}}">{{resource.Description}}</a></td>
+        <td><a onclick="currentResourceEdit('{{resource.URL}}');" class="btn btn-success">Edit</a></td>
+        <td><a onclick="currentResourceDrop('{{resource.URL}}');" class="btn btn-danger">Delete</a></td>
     </tr>
     {% endfor %}
   </tbody>
