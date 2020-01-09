@@ -2,14 +2,17 @@ from flask import Flask, make_response, request, render_template, url_for, redir
 
 import datetime
 import json
+import requests
 
 from api.settings.apisettings import API_SECRET
+from api.settings.apisettings import AI_SERVICE_URL
 
 from api.forms.LoginForm import LoginForm
 from api.forms.RegisterForm import RegisterForm
 from api.forms.LectureForm import LectureForm
 
 from api.forms.LectureEditForm import LectureEditForm
+from api.forms.GenerateLectureForm import GenerateLectureForm
 
 from bll.services.UserService import UserService
 from bll.services.LecturesService import LecturesService
@@ -30,6 +33,18 @@ def serialize(obj):
 
 def serialize_array(arr):
     return '\n'.join([serialize(element) for element in arr])
+
+
+def ping_ai_service(theme):
+    req = requests.post(AI_SERVICE_URL, json={'theme': theme})
+
+    if req.status_code == 500:
+        return "Sorry, generating service is not available now!"
+    elif req.status_code == 400:
+        return "Wrong input data!"
+    else:
+        response = req.content
+        return response
 
 
 app = Flask(__name__)
@@ -220,3 +235,21 @@ def delete_lecture():
     res.set_cookie('lecture_header', '', max_age=0)
     res.headers['location'] = url_for('list_lectures')
     return res, 302
+
+
+@app.route('/new_lecture', methods=['GET', 'POST'])
+def lecture_generator():
+    form = GenerateLectureForm()
+    user_login = request.cookies['user']
+    return render_template('new_lecture.html',
+                           form=form,
+                           user=user_login)
+
+
+@app.route('/make_lecture', methods=['POST'])
+def make_lecture():
+    form = GenerateLectureForm(request.form)
+    if form.Header.data:
+        return ping_ai_service(form.Header.data)
+    else:
+        return ""

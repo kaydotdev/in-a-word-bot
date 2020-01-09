@@ -7,6 +7,8 @@
 <br>
 
 <form class="lecture_form" action="{{url_for('list_lectures')}}" method="post">
+    {{ form.hidden_tag() }}
+
     <div class="row">
         <div class="col">
           {{ form.Header(class_="form-control") }}
