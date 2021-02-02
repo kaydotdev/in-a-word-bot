@@ -1,6 +1,0 @@
-BASE = 'postgresql+psycopg2'
-USERNAME = 'postgres'
-PASSWORD = ''
-HOST = 'localhost'
-PORT = '5432'
-DATABASE = 'heroku'
