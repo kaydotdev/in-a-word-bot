@@ -3,8 +3,9 @@ import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ParseMode
 from aiogram.utils.emoji import emojize
-from aiogram.utils.markdown import bold, text
+from aiogram.utils.markdown import bold, text, link
 from settings import API_TOKEN
+from sources import KNOWN_SOURCES
 
 
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +29,13 @@ DISCLAIMER = emojize(text(*[
 @dispatcher.message_handler(commands=['start'])
 async def handle_start(message: types.Message):
     await message.answer(DISCLAIMER, parse_mode=ParseMode.MARKDOWN)
+
+
+@dispatcher.message_handler(commands=['list'])
+async def handle_list(message: types.Message):
+    sources_list = text(*[text(link(source['name'], source['url']), "-", source['description'], sep=' ')
+                          for source in KNOWN_SOURCES], sep='\n')
+    await message.answer(sources_list, parse_mode=ParseMode.MARKDOWN)
 
 
 if __name__ == '__main__':

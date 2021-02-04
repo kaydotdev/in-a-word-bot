@@ -15,8 +15,8 @@ A list of used open resources with meta-ranking weights
 
 | Source                                             | Weight |
 |----------------------------------------------------|--------|
-| [Wikipedia]( https://www.wikipedia.org/)          | 0.3    |
-| [Everipedia]( https://everipedia.org/wiki)        | 0.2    |
-| [Oxfordre]( https://oxfordre.com)                 | 0.3    |
-| [Encyclopedia.com]( https://www.encyclopedia.com) | 0.15   |
-| [Citizendium]( https://en.citizendium.org/)       | 0.05   |
+| [Wikipedia](https://www.wikipedia.org/)            | 0.3    |
+| [Everipedia](https://everipedia.org)               | 0.2    |
+| [Oxfordre](https://oxfordre.com)                   | 0.3    |
+| [Encyclopedia.com](https://www.encyclopedia.com)   | 0.15   |
+| [Citizendium](https://en.citizendium.org/)         | 0.05   |
