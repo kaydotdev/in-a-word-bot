@@ -1,4 +1,4 @@
-# 'A gram of word' bot
+# A GRAM OF WORD
 
 -------------
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-**A gram of word** is an open Telegram bot that collects and aggregates scientific lectures and articles from
+**A GRAM OF WORD** is an open Telegram bot that collects and aggregates scientific lectures and articles from
 the known sources using meta-searching algorithms and text analysis algorithms.
 
 ## Known sources
