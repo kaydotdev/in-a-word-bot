@@ -6,6 +6,7 @@ from aiogram.types import ParseMode
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link
+from aiogram.dispatcher.filters import Text
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from settings import *
@@ -33,6 +34,17 @@ DISCLAIMER = emojize(text(*[
 ], sep=' '))
 
 
+@dispatcher.message_handler(commands=['cancel'], state='*')
+async def handle_cancel(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
+
+    if current_state is None:
+        return
+
+    await state.finish()
+    await message.answer('Operation cancelled.', reply_markup=types.ReplyKeyboardRemove())
+
+
 @dispatcher.message_handler(commands=['start'])
 async def handle_start(message: types.Message):
     await message.answer(DISCLAIMER, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
@@ -51,14 +63,14 @@ async def handle_query(message: types.Message):
     response = text(*["Send me your topic, it should contain",
                       bold("only Latin letters"),
                       "and be not longer than",
-                      bold("50 characters")], sep=' ')
+                      bold("50 characters"), "."], sep=' ')
     await message.answer(response, parse_mode=ParseMode.MARKDOWN)
 
 
 @dispatcher.message_handler(lambda message: message.text.isascii(), state=QueryStateMachine.awaiting_user_topic)
 async def handle_query_awaiting_user_topic(message: types.Message, state: FSMContext):
     if len(re.findall(r'^[a-zA-Z0-9\s]{1,50}$', message.text)) == 0:
-        await message.answer("User topic doesn't follow requirements above. Try again.")
+        await message.reply("User topic doesn't follow requirements above. Try again.")
     else:
         async with state.proxy() as data:
             data['user_topic'] = message.text
