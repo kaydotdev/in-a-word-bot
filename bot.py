@@ -1,17 +1,23 @@
+import re
 import logging
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ParseMode
+from aiogram.dispatcher import FSMContext
 from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
 from settings import *
 from sources import KNOWN_SOURCES
+from state import *
 
 
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
-dispatcher = Dispatcher(bot)
+cache_storage = MemoryStorage()
+dispatcher = Dispatcher(bot, storage=cache_storage)
 
 
 DISCLAIMER = emojize(text(*[
@@ -37,6 +43,52 @@ async def handle_list(message: types.Message):
     sources_list = text(*[text(link(source['name'], source['url']), "-", source['description'], sep=' ')
                           for source in KNOWN_SOURCES], sep='\n')
     await message.answer(sources_list, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+
+
+@dispatcher.message_handler(commands=['query'])
+async def handle_query(message: types.Message):
+    await QueryStateMachine.awaiting_user_topic.set()
+    response = text(*["Send me your topic, it should contain",
+                      bold("only Latin letters"),
+                      "and be not longer than",
+                      bold("50 characters")], sep=' ')
+    await message.answer(response, parse_mode=ParseMode.MARKDOWN)
+
+
+@dispatcher.message_handler(lambda message: message.text.isascii(), state=QueryStateMachine.awaiting_user_topic)
+async def handle_query_awaiting_user_topic(message: types.Message, state: FSMContext):
+    if len(re.findall(r'^[a-zA-Z0-9\s]{1,50}$', message.text)) == 0:
+        await message.answer("User topic doesn't follow requirements above. Try again.")
+    else:
+        async with state.proxy() as data:
+            data['user_topic'] = message.text
+
+        await QueryStateMachine.next()
+
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+        markup.add("Yes", "No")
+
+        await message.answer("List used resources after summary?", reply_markup=markup)
+
+
+@dispatcher.message_handler(lambda message: message.text in ["Yes", "No"],
+                            state=QueryStateMachine.awaiting_sources_list_option)
+async def handle_query_awaiting_awaiting_sources_list_option(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['sources_list'] = message.text
+        await message.answer("Processing the request...", reply_markup=types.ReplyKeyboardRemove())
+
+        # TODO: Place meta-search algorithm here
+        # ...
+
+        response = text(*["User topic:",
+                          bold(data['user_topic']),
+                          "Sources list option:",
+                          bold(data['sources_list'])], sep=' ')
+
+        await message.answer(response, parse_mode=ParseMode.MARKDOWN)
+
+    await state.finish()
 
 
 if __name__ == '__main__':
