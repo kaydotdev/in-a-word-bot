@@ -6,7 +6,6 @@ from aiogram.types import ParseMode
 from aiogram.dispatcher import FSMContext
 from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link
-from aiogram.dispatcher.filters import Text
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from settings import *
