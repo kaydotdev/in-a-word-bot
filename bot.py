@@ -8,17 +8,17 @@ from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+from datetime import datetime
+
 from settings import *
 from sources import KNOWN_SOURCES
 from state import *
-
 
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
 cache_storage = MemoryStorage()
 dispatcher = Dispatcher(bot, storage=cache_storage)
-
 
 DISCLAIMER = emojize(text(*[
     ":mag:", "Greetings, I am", bold("'A GRAM OF WORD'"), "bot,",
@@ -35,6 +35,7 @@ DISCLAIMER = emojize(text(*[
 
 @dispatcher.message_handler(commands=['cancel'], state='*')
 async def handle_cancel(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_cancel")
     current_state = await state.get_state()
 
     if current_state is None:
@@ -46,11 +47,13 @@ async def handle_cancel(message: types.Message, state: FSMContext):
 
 @dispatcher.message_handler(commands=['start'])
 async def handle_start(message: types.Message):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_start")
     await message.answer(DISCLAIMER, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
 @dispatcher.message_handler(commands=['list'])
 async def handle_list(message: types.Message):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_list")
     sources_list = text(*[text(link(source['name'], source['url']), "-", source['description'], sep=' ')
                           for source in KNOWN_SOURCES], sep='\n')
     await message.answer(sources_list, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
@@ -58,6 +61,7 @@ async def handle_list(message: types.Message):
 
 @dispatcher.message_handler(commands=['query'])
 async def handle_query(message: types.Message):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_query")
     await QueryStateMachine.awaiting_user_topic.set()
     response = text(*["Send me your topic, it should contain",
                       bold("only Latin letters"),
@@ -68,7 +72,10 @@ async def handle_query(message: types.Message):
 
 @dispatcher.message_handler(lambda message: message.text.isascii(), state=QueryStateMachine.awaiting_user_topic)
 async def handle_query_awaiting_user_topic(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_query_awaiting_user_topic")
     if len(re.findall(r'^[a-zA-Z0-9\s]{1,50}$', message.text)) == 0:
+        logging.warning(f"[{datetime.now()}@{message.from_user.username}] handle_query_awaiting_user_topic invalid "
+                        f"user topic")
         await message.reply("User topic doesn't follow requirements above. Try again.")
     else:
         async with state.proxy() as data:
@@ -85,6 +92,7 @@ async def handle_query_awaiting_user_topic(message: types.Message, state: FSMCon
 @dispatcher.message_handler(lambda message: message.text in ["Yes", "No"],
                             state=QueryStateMachine.awaiting_sources_list_option)
 async def handle_query_awaiting_awaiting_sources_list_option(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_query_awaiting_awaiting_sources_list_option")
     async with state.proxy() as data:
         data['sources_list'] = message.text
         await message.answer("Processing the request...", reply_markup=types.ReplyKeyboardRemove())
