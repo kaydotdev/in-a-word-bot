@@ -10,6 +10,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from datetime import datetime
 
+from processing import *
 from settings import *
 from sources import KNOWN_SOURCES
 from state import *
@@ -95,17 +96,19 @@ async def handle_query_awaiting_awaiting_sources_list_option(message: types.Mess
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_query_awaiting_awaiting_sources_list_option")
     async with state.proxy() as data:
         data['sources_list'] = message.text
-        await message.answer("Processing the request...", reply_markup=types.ReplyKeyboardRemove())
+        await message.answer(emojize(text(*[":mag:", "Collecting resources..."], sep=' ')),
+                             parse_mode=ParseMode.MARKDOWN,
+                             reply_markup=types.ReplyKeyboardRemove())
 
-        # TODO: Place meta-search algorithm here
-        # ...
+        try:
+            resources = await collect_ranked_hrefs(data['user_topic'], MAX_SOURCE_POOL)
+            resources_list = text(*[text(link(resource[0], resource[1])) for resource in resources], sep='\n')
 
-        response = text(*["User topic:",
-                          bold(data['user_topic']),
-                          "Sources list option:",
-                          bold(data['sources_list'])], sep=' ')
-
-        await message.answer(response, parse_mode=ParseMode.MARKDOWN)
+            await message.answer(resources_list, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        except Exception as ex:
+            logging.error(f"[{datetime.now()}@{message.from_user.username}] Error: {ex}")
+            await message.answer(emojize(text(*["No resource found on desirable topic", ":disappointed:"], sep=' ')),
+                                 parse_mode=ParseMode.MARKDOWN)
 
     await state.finish()
 
