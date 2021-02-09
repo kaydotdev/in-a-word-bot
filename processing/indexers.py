@@ -11,12 +11,15 @@ class CitizendiumIndexer:
         return f"{self.domain}/wiki?title=Special%3ASearch&profile=default&search={query_topic}&fulltext=Search"
 
     def __extract__(self, document: html.HtmlElement, weight: float) -> list:
-        search_results = document.cssselect('ul.mw-search-results li')
-        return [{
-            'title': result.cssselect('div.mw-search-result-heading a')[0].text_content(),
-            'href': self.domain + result.cssselect('div.mw-search-result-heading a')[0].attrib['href'],
-            'weight': weight
-        } for result in search_results]
+        try:
+            search_results = document.cssselect('ul.mw-search-results li')
+            return [{
+                'title': result.cssselect('div.mw-search-result-heading a')[0].text_content(),
+                'href': self.domain + result.cssselect('div.mw-search-result-heading a')[0].attrib['href'],
+                'weight': weight
+            } for result in search_results]
+        except Exception:
+            return []
 
     async def index(self, topic) -> list:
         async with aiohttp.ClientSession() as session:
@@ -62,12 +65,15 @@ class OxfordreIndexer:
         return f"{self.domain}/search?q={query_topic}&searchBtn=Search&isQuickSearch=true"
 
     def __extract__(self, document: html.HtmlElement, weight: float) -> list:
-        search_results = document.cssselect('#searchContent div.contentItem.hasAccess')
-        return [{
-            'title': result.cssselect('div.title-wrapper a')[0].text_content(),
-            'href': self.domain + result.cssselect('div.title-wrapper a')[0].attrib['href'],
-            'weight': weight
-        } for result in search_results]
+        try:
+            search_results = document.cssselect('#searchContent div.contentItem.hasAccess')
+            return [{
+                'title': result.cssselect('div.title-wrapper a')[0].text_content(),
+                'href': self.domain + result.cssselect('div.title-wrapper a')[0].attrib['href'],
+                'weight': weight
+            } for result in search_results]
+        except Exception:
+            return []
 
     async def index(self, topic) -> list:
         async with aiohttp.ClientSession() as session:
