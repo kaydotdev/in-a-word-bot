@@ -33,6 +33,8 @@ DISCLAIMER = emojize(text(*[
     link("Source code", REPO_LINK), link("Developer", DEV_LINK)
 ], sep=' '))
 
+WEBHOOK_URL = f"{WEBHOOK_DOMAIN}{WEBHOOK_PATH}"
+
 
 @dispatcher.message_handler(commands=['cancel'], state='*')
 async def handle_cancel(message: types.Message, state: FSMContext):
@@ -114,5 +116,28 @@ async def handle_query_awaiting_awaiting_sources_list_option(message: types.Mess
     await state.finish()
 
 
+async def on_startup(_dispatcher):
+    logging.warning(f'[{datetime.now()}@root] setting web hook')
+    await bot.set_webhook(WEBHOOK_URL)
+
+
+async def on_shutdown(_dispatcher):
+    logging.warning(f'[{datetime.now()}@root] deleting web hook')
+
+    await bot.delete_webhook()
+
+    logging.warning(f'[{datetime.now()}@root] shutting down bot')
+    await dispatcher.storage.close()
+    await dispatcher.storage.wait_closed()
+
+    logging.warning(f'[{datetime.now()}@root] bot was successfully shut down')
+
+
 if __name__ == '__main__':
-    executor.start_polling(dispatcher, skip_updates=True)
+    executor.start_webhook(dispatcher,
+                           WEBHOOK_PATH,
+                           on_startup=on_startup,
+                           on_shutdown=on_shutdown,
+                           skip_updates=True,
+                           host=WEBHOOK_IP,
+                           port=WEBHOOK_PORT)
