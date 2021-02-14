@@ -6,8 +6,7 @@
 
 ## Overview
 
-**A GRAM OF WORD** is an open Telegram bot that collects and aggregates scientific lectures and articles from
-the known sources using meta-searching algorithms and text analysis algorithms.
+**A GRAM OF WORD** is an open Telegram bot that aggregates scientific articles from the known sources using meta-searching algorithms and filters duplicates using text analysis algorithms.
 
 ## Known sources
 
