@@ -7,6 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from datetime import datetime
 
@@ -14,12 +15,6 @@ from processing import *
 from settings import *
 from sources import KNOWN_SOURCES
 from state import *
-
-logging.basicConfig(level=logging.INFO)
-
-bot = Bot(token=API_TOKEN)
-cache_storage = MemoryStorage()
-dispatcher = Dispatcher(bot, storage=cache_storage)
 
 DISCLAIMER = emojize(text(*[
     ":mag:", "Greetings, I am", bold("'A GRAM OF WORD'"), "bot,",
@@ -33,7 +28,20 @@ DISCLAIMER = emojize(text(*[
     link("Source code", REPO_LINK), link("Developer", DEV_LINK)
 ], sep=' '))
 
-WEBHOOK_URL = f"{WEBHOOK_DOMAIN}{WEBHOOK_PATH}"
+logging.basicConfig(level=logging.INFO)
+
+bot = Bot(token=API_TOKEN)
+
+if REDIS_HOST is not None:
+    cache_storage = RedisStorage2(host=REDIS_HOST, port=int(REDIS_PORT),
+                                  password=REDIS_PASSWORD, db=5, ssl=True)
+else:
+    cache_storage = MemoryStorage()
+
+dispatcher = Dispatcher(bot, storage=cache_storage)
+
+if WEBHOOK_DOMAIN is not None:
+    WEBHOOK_URL = f"{WEBHOOK_DOMAIN}{WEBHOOK_PATH}"
 
 
 @dispatcher.message_handler(commands=['cancel'], state='*')
@@ -94,7 +102,7 @@ async def handle_query_awaiting_user_topic(message: types.Message, state: FSMCon
 
 @dispatcher.message_handler(lambda message: message.text in ["Yes", "No"],
                             state=QueryStateMachine.awaiting_sources_list_option)
-async def handle_query_awaiting_awaiting_sources_list_option(message: types.Message, state: FSMContext):
+async def handle_query_awaiting_sources_list_option(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_query_awaiting_awaiting_sources_list_option")
     async with state.proxy() as data:
         data['sources_list'] = message.text
@@ -133,8 +141,16 @@ async def on_shutdown(_dispatcher):
     logging.warning(f'[{datetime.now()}@root] bot was successfully shut down')
 
 
+async def on_polling_shutdown(_dispatcher):
+    logging.warning(f'[{datetime.now()}@root] shutting down bot')
+    await dispatcher.storage.close()
+    await dispatcher.storage.wait_closed()
+
+    logging.warning(f'[{datetime.now()}@root] bot was successfully shut down')
+
+
 if __name__ == '__main__':
-    if WEBHOOK_ENABLED is True:
+    if WEBHOOK_DOMAIN is not None:
         executor.start_webhook(dispatcher,
                                WEBHOOK_PATH,
                                on_startup=on_startup,
@@ -144,4 +160,5 @@ if __name__ == '__main__':
                                port=WEBHOOK_PORT)
     else:
         executor.start_polling(dispatcher,
-                               skip_updates=True)
+                               skip_updates=True,
+                               on_shutdown=on_polling_shutdown)
