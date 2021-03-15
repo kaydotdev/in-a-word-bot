@@ -1,4 +1,5 @@
 import aiohttp
+import logging
 from lxml import html
 
 
@@ -18,7 +19,8 @@ class CitizendiumIndexer:
                 'href': self.domain + result.cssselect('div.mw-search-result-heading a')[0].attrib['href'],
                 'weight': weight
             } for result in search_results]
-        except Exception:
+        except Exception as ex:
+            logging.error(ex)
             return []
 
     async def index(self, topic) -> list:
@@ -72,7 +74,8 @@ class OxfordreIndexer:
                 'href': self.domain + result.cssselect('div.title-wrapper a')[0].attrib['href'],
                 'weight': weight
             } for result in search_results]
-        except Exception:
+        except Exception as ex:
+            logging.error(ex)
             return []
 
     async def index(self, topic) -> list:
