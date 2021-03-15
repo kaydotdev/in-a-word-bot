@@ -134,10 +134,14 @@ async def on_shutdown(_dispatcher):
 
 
 if __name__ == '__main__':
-    executor.start_webhook(dispatcher,
-                           WEBHOOK_PATH,
-                           on_startup=on_startup,
-                           on_shutdown=on_shutdown,
-                           skip_updates=True,
-                           host=WEBHOOK_IP,
-                           port=WEBHOOK_PORT)
+    if WEBHOOK_ENABLED is True:
+        executor.start_webhook(dispatcher,
+                               WEBHOOK_PATH,
+                               on_startup=on_startup,
+                               on_shutdown=on_shutdown,
+                               skip_updates=True,
+                               host=WEBHOOK_IP,
+                               port=WEBHOOK_PORT)
+    else:
+        executor.start_polling(dispatcher,
+                               skip_updates=True)

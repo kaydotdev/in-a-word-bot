@@ -20,6 +20,10 @@ def borda_ranking(indexes: list, max_source_pool: int) -> list:
 
     for sublist in indexes:
         sublen = len(sublist)
+
+        if sublen == 0:
+            continue
+
         weight, ratio = sublist[0]['weight'], sublen / total_indexes
         agg_rank.extend([(index['title'], index['href'], i / sublen * weight * ratio)
                          for i, index in enumerate(sublist[::-1], 1)])
