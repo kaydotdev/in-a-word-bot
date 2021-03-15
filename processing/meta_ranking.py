@@ -1,4 +1,6 @@
 import asyncio
+import multiprocessing
+import concurrent.futures
 
 from collections import OrderedDict
 from operator import itemgetter
@@ -51,5 +53,11 @@ def borda_ranking(indexes: list, max_source_pool: int) -> list:
 
 
 async def collect_ranked_hrefs(topic: str, max_source_pool: int) -> list:
+    loop = asyncio.get_running_loop()
+
     indexes = await collect_indexes(topic)
-    return borda_ranking(indexes, max_source_pool)
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as pool:
+        ranks = await loop.run_in_executor(pool, borda_ranking, indexes, max_source_pool)
+
+    return ranks
