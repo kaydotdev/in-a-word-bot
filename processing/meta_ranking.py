@@ -27,18 +27,19 @@ def borda_ranking(indexes: list, max_source_pool: int) -> list:
             continue
 
         weight, ratio = sublist[0]['weight'], sublen / total_indexes
-        agg_rank.extend([(index['title'], index['href'], i / sublen * weight * ratio)
+        agg_rank.extend([(index['title'], index['href'], i / sublen * weight * ratio, index['origin'])
                          for i, index in enumerate(sublist[::-1], 1)])
 
-    source_table, source_ranks = OrderedDict(), OrderedDict()
+    source_table, source_ranks, source_origins = OrderedDict(), OrderedDict(), OrderedDict()
 
-    for title, href, val in agg_rank:
+    for title, href, val, origin in agg_rank:
         if title in source_ranks:
             source_table[title].append((href, val))
             source_ranks[title].append(val)
         else:
             source_table[title] = [(href, val)]
             source_ranks[title] = [val]
+            source_origins[title] = origin
 
     for title, ranks in source_ranks.items():
         _, max_ranked_href = max(enumerate(source_table[title]), key=itemgetter(1))
@@ -49,7 +50,9 @@ def borda_ranking(indexes: list, max_source_pool: int) -> list:
                                key=lambda item: item[1],
                                reverse=True))
 
-    return [(topic, source_table[topic]) for topic, _ in list(sorted_ranks.items())[:max_source_pool]]
+    return [(topic, source_table[topic], source_origins[topic])
+            for topic, _
+            in list(sorted_ranks.items())[:max_source_pool]]
 
 
 async def collect_ranked_hrefs(topic: str, max_source_pool: int) -> list:

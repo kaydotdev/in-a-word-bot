@@ -15,6 +15,7 @@ class CitizendiumIndexer:
         try:
             search_results = document.cssselect('ul.mw-search-results li')
             return [{
+                'origin': 'citizendium',
                 'title': result.cssselect('div.mw-search-result-heading a')[0].text_content(),
                 'href': self.domain + result.cssselect('div.mw-search-result-heading a')[0].attrib['href'],
                 'weight': weight
@@ -50,6 +51,7 @@ class EveripediaIndexer:
                 articles = json_response['articles']
 
                 links = [{
+                    'origin': 'everipedia',
                     'title': article['page_title'],
                     'href': 'https://everipedia.org/wiki/lang_en/' + article['slug'],
                     'weight': self.link_weight
@@ -70,6 +72,7 @@ class OxfordreIndexer:
         try:
             search_results = document.cssselect('#searchContent div.contentItem.hasAccess')
             return [{
+                'origin': 'oxfordre',
                 'title': result.cssselect('div.title-wrapper a')[0].text_content(),
                 'href': self.domain + result.cssselect('div.title-wrapper a')[0].attrib['href'],
                 'weight': weight
