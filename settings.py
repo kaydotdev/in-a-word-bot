@@ -2,6 +2,7 @@ import os
 
 
 # Bot settings
+MAX_MESSAGE_LENGTH = 4096
 API_TOKEN = os.getenv('ENV_API_TOKEN')
 
 WEBHOOK_DOMAIN = os.getenv('ENV_WEBHOOK_DOMAIN')

@@ -120,10 +120,16 @@ async def handle_query_awaiting_sources_list_option(message: types.Message, stat
             else:
                 corpus = await parse_corpus_from_sources(resources)
 
-                resources_list = corpus + "\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
-                                                                             for resource in resources], sep='\n')
+                summary_with_references = corpus + "\n\n\n\nUsed resources:\n\n" + text(
+                    *[text(link(resource[0], resource[1]))
+                      for resource in resources], sep='\n')
 
-                await message.answer(resources_list, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                # Splitting message in chunks, if it's larger than MAX_MESSAGE_LENGTH,
+                # in order to prevent server-side error
+                for i in range(0, len(summary_with_references), MAX_MESSAGE_LENGTH):
+                    await message.answer(summary_with_references[i:i+MAX_MESSAGE_LENGTH],
+                                         parse_mode=ParseMode.MARKDOWN,
+                                         disable_web_page_preview=True)
         except Exception as ex:
             logging.error(f"[{datetime.now()}@{message.from_user.username}] Error: {ex}")
             await message.answer(emojize(text(*["No resource found on desirable topic", ":disappointed:"], sep=' ')),
