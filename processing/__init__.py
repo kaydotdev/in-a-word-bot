@@ -1,1 +1,2 @@
 from processing.meta_ranking import collect_ranked_hrefs
+from processing.extractors import parse_corpus_from_sources

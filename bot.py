@@ -118,8 +118,10 @@ async def handle_query_awaiting_sources_list_option(message: types.Message, stat
                     emojize(text(*["No resource found on desirable topic", ":disappointed:"], sep=' ')),
                     parse_mode=ParseMode.MARKDOWN)
             else:
-                resources_list = "\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
-                                                                    for resource in resources], sep='\n')
+                corpus = await parse_corpus_from_sources(resources)
+
+                resources_list = corpus + "\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
+                                                                             for resource in resources], sep='\n')
 
                 await message.answer(resources_list, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         except Exception as ex:
