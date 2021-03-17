@@ -112,10 +112,16 @@ async def handle_query_awaiting_sources_list_option(message: types.Message, stat
 
         try:
             resources = await collect_ranked_hrefs(data['user_topic'], MAX_SOURCE_POOL)
-            resources_list = "\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
-                                                                for resource in resources], sep='\n')
 
-            await message.answer(resources_list, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+            if len(resources) == 0:
+                await message.answer(
+                    emojize(text(*["No resource found on desirable topic", ":disappointed:"], sep=' ')),
+                    parse_mode=ParseMode.MARKDOWN)
+            else:
+                resources_list = "\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
+                                                                    for resource in resources], sep='\n')
+
+                await message.answer(resources_list, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         except Exception as ex:
             logging.error(f"[{datetime.now()}@{message.from_user.username}] Error: {ex}")
             await message.answer(emojize(text(*["No resource found on desirable topic", ":disappointed:"], sep=' ')),
