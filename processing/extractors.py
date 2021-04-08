@@ -51,7 +51,24 @@ class CitizendiumExtractor:
 
 class InfoPleaseExtractor:
     async def extract(self, resource: str) -> str:
-        return ""
+        async with aiohttp.ClientSession() as session:
+            async with session.get(resource) as response:
+                try:
+                    document = html.fromstring(await response.text())
+                    text_containers = document.cssselect("div.article-detail")
+
+                    if len(text_containers) != 0:
+                        source_text = " ".join([container.text_content().replace("\n", "")
+                                                .replace("\r", "").replace("\t", "")
+                                                for container in text_containers])
+                    else:
+                        source_text = ""
+                except Exception as ex:
+                    logging.error(f'[{datetime.now()}@root] {ex}')
+                    source_text = ""
+
+        logging.info(f'[{datetime.now()}@root] Collected source from source "infoplease": {source_text}')
+        return source_text
 
 
 async def parse_corpus_from_sources(resources: list) -> str:
