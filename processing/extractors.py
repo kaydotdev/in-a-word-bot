@@ -49,7 +49,7 @@ class CitizendiumExtractor:
         return source_text
 
 
-class OxfordreExtractor:
+class InfoPleaseExtractor:
     async def extract(self, resource: str) -> str:
         return ""
 
@@ -58,7 +58,7 @@ async def parse_corpus_from_sources(resources: list) -> str:
     extractors = {
         'everipedia': EveripediaExtractor(),
         'citizendium': CitizendiumExtractor(),
-        'oxfordre': OxfordreExtractor()
+        'infoplease': InfoPleaseExtractor()
     }
 
     tasks = [extractors[resource[2]].extract(resource[1])

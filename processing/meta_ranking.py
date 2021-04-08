@@ -10,7 +10,7 @@ from processing.indexers import *
 async def collect_indexes(topic: str) -> list:
     indexers = [CitizendiumIndexer(),
                 EveripediaIndexer(),
-                OxfordreIndexer()]
+                InfoPleaseIndexer()]
 
     tasks = [indexer.index(topic) for indexer in indexers]
     return list(await asyncio.gather(*tasks))

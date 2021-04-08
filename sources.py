@@ -6,9 +6,10 @@ KNOWN_SOURCES = [
                        '2015 as a fork of Wikipedia.'
     },
     {
-        'name': 'Oxfordre',
-        'url': 'https://oxfordre.com',
-        'description': 'Oxford Research Encyclopedias.'
+        'name': 'Infoplease',
+        'url': 'https://www.infoplease.com',
+        'description': 'Pearson Education\'s Infoplease provides free access to more than 57,000 articles from the '
+                       'Columbia Encyclopedia. '
     },
     {
         'name': 'Citizendium',

@@ -5,7 +5,7 @@ from lxml import html
 
 class CitizendiumIndexer:
     domain = 'https://en.citizendium.org'
-    link_weight = 0.3
+    link_weight = 0.2
 
     def __query_scheme__(self, topic) -> str:
         query_topic = topic.replace(' ', '+')
@@ -60,21 +60,21 @@ class EveripediaIndexer:
         return links
 
 
-class OxfordreIndexer:
-    domain = 'https://oxfordre.com'
-    link_weight = 0.4
+class InfoPleaseIndexer:
+    domain = 'https://www.infoplease.com'
+    link_weight = 0.5
 
     def __query_scheme__(self, topic) -> str:
         query_topic = topic.replace(' ', '+')
-        return f"{self.domain}/search?q={query_topic}&searchBtn=Search&isQuickSearch=true"
+        return f"{self.domain}/search/{query_topic}"
 
     def __extract__(self, document: html.HtmlElement, weight: float) -> list:
         try:
-            search_results = document.cssselect('#searchContent div.contentItem.hasAccess')
+            search_results = document.cssselect('#mainaside div.views-field h2 a')
             return [{
-                'origin': 'oxfordre',
-                'title': result.cssselect('div.title-wrapper a')[0].text_content(),
-                'href': self.domain + result.cssselect('div.title-wrapper a')[0].attrib['href'],
+                'origin': 'infoplease',
+                'title': result.text_content(),
+                'href': self.domain + result.attrib['href'],
                 'weight': weight
             } for result in search_results]
         except Exception as ex:
