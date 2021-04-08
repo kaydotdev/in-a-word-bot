@@ -120,14 +120,14 @@ async def handle_query_awaiting_sources_list_option(message: types.Message, stat
             else:
                 corpus = await parse_corpus_from_sources(resources)
 
-                summary_with_references = corpus + "\n\n\n\nUsed resources:\n\n" + text(
-                    *[text(link(resource[0], resource[1]))
-                      for resource in resources], sep='\n')
+                if data['sources_list'] == "Yes":
+                    corpus += "\n\n\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
+                                                                     for resource in resources], sep='\n')
 
                 # Splitting message in chunks, if it's larger than MAX_MESSAGE_LENGTH,
                 # in order to prevent server-side error
-                for i in range(0, len(summary_with_references), MAX_MESSAGE_LENGTH):
-                    await message.answer(summary_with_references[i:i+MAX_MESSAGE_LENGTH],
+                for i in range(0, len(corpus), MAX_MESSAGE_LENGTH):
+                    await message.answer(corpus[i:i + MAX_MESSAGE_LENGTH],
                                          parse_mode=ParseMode.MARKDOWN,
                                          disable_web_page_preview=True)
         except Exception as ex:
