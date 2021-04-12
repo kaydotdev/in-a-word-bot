@@ -124,8 +124,9 @@ async def handle_query_awaiting_sources_list_option(message: types.Message, stat
                     corpus += "\n\n\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
                                                                      for resource in resources], sep='\n')
 
-                # Splitting message in chunks, if it's larger than MAX_MESSAGE_LENGTH,
-                # in order to prevent server-side error
+                # Max length of single Telegram message is 4096 characters. If gathered
+                # text contains more symbols, it will be split into chunks of MAX_MESSAGE_LENGTH
+                # and delivered in sequence
                 for i in range(0, len(corpus), MAX_MESSAGE_LENGTH):
                     await message.answer(corpus[i:i + MAX_MESSAGE_LENGTH],
                                          parse_mode=ParseMode.MARKDOWN,
