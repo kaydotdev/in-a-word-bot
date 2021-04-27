@@ -120,15 +120,20 @@ async def handle_query_awaiting_sources_list_option(message: types.Message, stat
             else:
                 corpus = await parse_corpus_from_sources(resources)
 
+                await message.answer(emojize(text(*[":gear:", "Summarizing data..."], sep=' ')),
+                                     parse_mode=ParseMode.MARKDOWN)
+
+                summary = await summarize_corpus(corpus)
+
                 if data['sources_list'] == "Yes":
-                    corpus += "\n\n\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
-                                                                     for resource in resources], sep='\n')
+                    summary += "\n\n\nUsed resources:\n\n" + text(*[text(link(resource[0], resource[1]))
+                                                                    for resource in resources], sep='\n')
 
                 # Max length of single Telegram message is 4096 characters. If gathered
                 # text contains more symbols, it will be split into chunks of MAX_MESSAGE_LENGTH
                 # and delivered in sequence
-                for i in range(0, len(corpus), MAX_MESSAGE_LENGTH):
-                    await message.answer(corpus[i:i + MAX_MESSAGE_LENGTH],
+                for i in range(0, len(summary), MAX_MESSAGE_LENGTH):
+                    await message.answer(summary[i:i + MAX_MESSAGE_LENGTH],
                                          parse_mode=ParseMode.MARKDOWN,
                                          disable_web_page_preview=True)
         except Exception as ex:
