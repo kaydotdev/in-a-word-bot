@@ -26,6 +26,10 @@ SUMMARY_OPTION_TITLE = emojize(text(*[
     ":information_source:", " Use ", bold("Abstraction"), " option for general cases."
 ], sep=''))
 
+SENDING_REQUEST = emojize(text(*[
+    ":outbox_tray:", "Sending request to the web resource..."
+], sep=' '))
+
 # STATIC REPLY-KEYBOARD OPTIONS
 SUMMARY_FROM_PLAIN_TEXT_OPTION = emojize(text(*['Text', ':notebook_with_decorative_cover:']))
 SUMMARY_FROM_FILE_OPTION = emojize(text(*['File', ':floppy_disk:']))
@@ -41,15 +45,17 @@ SUMMARIZE_BY_CRITERIA_OPTIONS = [SUMMARIZE_BY_FREQUENCY_OPTION, SUMMARIZE_BY_ABS
 CHOSEN_SUMMARY_RESPONSES = {
     SUMMARY_FROM_PLAIN_TEXT_OPTION: emojize(text(*[
         'Good! Now send me directly the text you want to summarize.\n\n',
-        ':warning:', ' Maximum message length in Telegram is only 4096 characters.'
+        ':warning:', bold('WARNING'), ': Maximum message length in Telegram is only 4096 characters.'
     ], sep='')),
     SUMMARY_FROM_FILE_OPTION: emojize(text(*[
         'Good! Now send me the file, which contains text you want to summarize.\n\n',
-        ':warning:', ' For now the only accepted file format is ".', bold('TXT'), '".'
+        ':warning:', bold('WARNING'), ':\n',
+        '1) For now the only accepted file format is ".', bold('TXT'), '".\n',
+        '2) Max file size is ', bold('2MB'), '.'
     ], sep='')),
     SUMMARY_FROM_WEB_RESOURCE_OPTION: emojize(text(*[
-        'Good! Now send me the link to external web resource to parse and summarize.\n\n',
-        ':warning:', ' JavaScript content will not be handled.'
+        'Good! Now send me an URL to external web resource to parse and summarize.\n\n',
+        ':warning:', bold('WARNING'), ': JavaScript content will not be handled.'
     ], sep=''))
 }
 
@@ -57,3 +63,7 @@ CHOSEN_SUMMARY_RESPONSES = {
 main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*MAIN_MENU_OPTIONS)
 summarize_by_criteria_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARIZE_BY_CRITERIA_OPTIONS)
 empty_keyboard = ReplyKeyboardRemove()
+
+# ERROR MESSAGES
+NO_SUMMARIZATION_CRITERIA_ERROR = text(*['The summarization criteria was not specified!'])
+WEB_CRAWLER_HTTP_ERROR = emojize(text(*[':no_entry:', 'Failed to parse web resource content by the given URL']))
