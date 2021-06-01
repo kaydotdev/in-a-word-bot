@@ -15,7 +15,7 @@ bot = Bot(token=API_TOKEN)
 cache_storage = MemoryStorage()
 dispatcher = Dispatcher(bot, storage=cache_storage)
 
-if WEBHOOK_DOMAIN is not None:
+if WEBHOOK_ENABLED:
     WEBHOOK_URL = f"{WEBHOOK_DOMAIN}{WEBHOOK_PATH}"
 
 
@@ -37,28 +37,26 @@ async def handle_start(message: types.Message):
     await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
+async def shutdown_storage():
+    logging.warning(f'[{datetime.now()}@bot] waiting for storage to shutdown')
+    await dispatcher.storage.close()
+    await dispatcher.storage.wait_closed()
+
+
 async def on_startup(_dispatcher):
-    logging.warning(f'[{datetime.now()}@bot] setting web hook')
+    logging.warning(f'[{datetime.now()}@bot] setting web hook on {WEBHOOK_URL}')
     await bot.set_webhook(WEBHOOK_URL)
 
 
 async def on_shutdown(_dispatcher):
     logging.warning(f'[{datetime.now()}@bot] deleting web hook')
-
     await bot.delete_webhook()
-
-    logging.warning(f'[{datetime.now()}@bot] shutting down bot')
-    await dispatcher.storage.close()
-    await dispatcher.storage.wait_closed()
-
+    await shutdown_storage()
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
 
 
 async def on_polling_shutdown(_dispatcher):
-    logging.warning(f'[{datetime.now()}@bot] shutting down bot')
-    await dispatcher.storage.close()
-    await dispatcher.storage.wait_closed()
-
+    await shutdown_storage()
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
 
 
