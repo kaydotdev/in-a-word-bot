@@ -29,7 +29,7 @@ async def handle_cancel(message: types.Message, state: FSMContext):
         return
 
     await state.finish()
-    await message.answer(f'The command has been cancelled.', reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(f'The command has been cancelled.', reply_markup=empty_keyboard)
 
 
 @dispatcher.message_handler(commands=['start'])
@@ -41,16 +41,38 @@ async def handle_start(message: types.Message):
                          disable_web_page_preview=True, reply_markup=main_menu_keyboard)
 
 
-@dispatcher.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS, state=DialogFSM.main_menu)
+@dispatcher.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS,
+                            state=DialogFSM.main_menu)
 async def handle_summarization_criteria_assignment(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summarization_criteria_assignment")
 
     async with state.proxy() as data:
-        data['entry_data_type'] = message.text
+        data['USER_DATA_TYPE'] = message.text
 
-    await DialogFSM.summarization_criteria.set()
-    await message.answer(SUMMARY_OPTION_TITLE, parse_mode=ParseMode.MARKDOWN,
-                         reply_markup=summarize_by_criteria_keyboard)
+        await DialogFSM.summarization_criteria.set()
+        await message.answer(SUMMARY_OPTION_TITLE, parse_mode=ParseMode.MARKDOWN,
+                             reply_markup=summarize_by_criteria_keyboard)
+
+
+@dispatcher.message_handler(lambda message: message.text in SUMMARIZE_BY_CRITERIA_OPTIONS,
+                            state=DialogFSM.summarization_criteria)
+async def handle_user_data_source_input(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_user_data_source_input")
+
+    async with state.proxy() as data:
+        data['SUMMARIZATION_CRITERIA_TYPE'] = message.text
+
+        if data['USER_DATA_TYPE'] == SUMMARY_FROM_PLAIN_TEXT_OPTION:
+            await DialogFSM.plain_text_processing.set()
+        elif data['USER_DATA_TYPE'] == SUMMARY_FROM_FILE_OPTION:
+            await DialogFSM.file_processing.set()
+        elif data['USER_DATA_TYPE'] == SUMMARY_FROM_WEB_RESOURCE_OPTION:
+            await DialogFSM.web_resource_processing.set()
+        else:
+            await state.finish()
+
+        await message.answer(CHOSEN_SUMMARY_RESPONSES.get(data['USER_DATA_TYPE']),
+                             parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
 
 
 async def shutdown_storage(_dispatcher):

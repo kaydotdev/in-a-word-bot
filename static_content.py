@@ -1,9 +1,8 @@
 from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link, italic
-from aiogram.types import ReplyKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from settings import REPO_LINK, DEV_LINK
-
 
 # STATIC MESSAGES
 BOT_TITLE = emojize(text(*[
@@ -12,7 +11,8 @@ BOT_TITLE = emojize(text(*[
     " day by day! Whether you are a student preparing an essay or a researcher working ",
     "with the knowledge base, you spend a lot of time searching, filtering, and summarizing ",
     "text. ", link("Google", "https://www.google.com/"), " can assist you with the first two steps, "
-    "but I will help with the last one!", " Send me a ", bold("plain text"), ", ", bold("file"),
+                                                         "but I will help with the last one!", " Send me a ",
+    bold("plain text"), ", ", bold("file"),
     ", or ", bold("link to an external resource"), ", and I will summarize it for you in a word :grin:.\n\n",
     "I'm an open-source project, and you can find my ", link("source code here", REPO_LINK), ". ",
     "If you want to report an issue or have some suggestions for improvement, contact the ",
@@ -38,6 +38,22 @@ SUMMARIZE_BY_ABSTRACTION_OPTION = text(*['Abstraction'])
 
 SUMMARIZE_BY_CRITERIA_OPTIONS = [SUMMARIZE_BY_FREQUENCY_OPTION, SUMMARIZE_BY_ABSTRACTION_OPTION]
 
+CHOSEN_SUMMARY_RESPONSES = {
+    SUMMARY_FROM_PLAIN_TEXT_OPTION: emojize(text(*[
+        'Good! Now send me directly the text you want to summarize.\n\n',
+        ':warning:', ' Maximum message length in Telegram is only 4096 characters.'
+    ], sep='')),
+    SUMMARY_FROM_FILE_OPTION: emojize(text(*[
+        'Good! Now send me the file, which contains text you want to summarize.\n\n',
+        ':warning:', ' For now the only accepted file format is ".', bold('TXT'), '".'
+    ], sep='')),
+    SUMMARY_FROM_WEB_RESOURCE_OPTION: emojize(text(*[
+        'Good! Now send me the link to external web resource to parse and summarize.\n\n',
+        ':warning:', ' JavaScript content will not be handled.'
+    ], sep=''))
+}
+
 # STATIC REPLY-KEYBOARDS
 main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*MAIN_MENU_OPTIONS)
 summarize_by_criteria_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARIZE_BY_CRITERIA_OPTIONS)
+empty_keyboard = ReplyKeyboardRemove()
