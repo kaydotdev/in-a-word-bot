@@ -1,7 +1,7 @@
 import logging
 
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import ParseMode
+from aiogram.types import ParseMode, ReplyKeyboardMarkup
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
@@ -19,6 +19,11 @@ if WEBHOOK_ENABLED:
     WEBHOOK_URL = f"{WEBHOOK_DOMAIN}{WEBHOOK_PATH}"
 
 
+main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(
+    *[SUMMARY_FROM_PLAIN_TEXT_OPTION, SUMMARY_FROM_FILE_OPTION, SUMMARY_FROM_WEB_RESOURCE_OPTION]
+)
+
+
 @dispatcher.message_handler(commands=['cancel'], state='*')
 async def handle_cancel(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_cancel")
@@ -34,13 +39,14 @@ async def handle_cancel(message: types.Message, state: FSMContext):
 @dispatcher.message_handler(commands=['start'])
 async def handle_start(message: types.Message):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_start")
-    await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN,
+                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
 
 
-async def shutdown_storage():
+async def shutdown_storage(_dispatcher):
     logging.warning(f'[{datetime.now()}@bot] waiting for storage to shutdown')
-    await dispatcher.storage.close()
-    await dispatcher.storage.wait_closed()
+    await _dispatcher.storage.close()
+    await _dispatcher.storage.wait_closed()
 
 
 async def on_startup(_dispatcher):
@@ -51,12 +57,12 @@ async def on_startup(_dispatcher):
 async def on_shutdown(_dispatcher):
     logging.warning(f'[{datetime.now()}@bot] deleting web hook')
     await bot.delete_webhook()
-    await shutdown_storage()
+    await shutdown_storage(_dispatcher)
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
 
 
 async def on_polling_shutdown(_dispatcher):
-    await shutdown_storage()
+    await shutdown_storage(_dispatcher)
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
 
 
