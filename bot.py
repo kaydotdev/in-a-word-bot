@@ -1,13 +1,14 @@
 import logging
 
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import ParseMode, ReplyKeyboardMarkup
+from aiogram.types import ParseMode
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from datetime import datetime
 from static_content import *
 from settings import *
+from states import *
 
 logging.basicConfig(level=logging.INFO)
 
@@ -19,11 +20,6 @@ if WEBHOOK_ENABLED:
     WEBHOOK_URL = f"{WEBHOOK_DOMAIN}{WEBHOOK_PATH}"
 
 
-main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(
-    *[SUMMARY_FROM_PLAIN_TEXT_OPTION, SUMMARY_FROM_FILE_OPTION, SUMMARY_FROM_WEB_RESOURCE_OPTION]
-)
-
-
 @dispatcher.message_handler(commands=['cancel'], state='*')
 async def handle_cancel(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_cancel")
@@ -33,14 +29,28 @@ async def handle_cancel(message: types.Message, state: FSMContext):
         return
 
     await state.finish()
-    await message.answer(f'The command {current_state} has been cancelled.', reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(f'The command has been cancelled.', reply_markup=types.ReplyKeyboardRemove())
 
 
 @dispatcher.message_handler(commands=['start'])
 async def handle_start(message: types.Message):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_start")
+
+    await DialogFSM.main_menu.set()
     await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN,
                          disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+
+
+@dispatcher.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS, state=DialogFSM.main_menu)
+async def handle_summarization_criteria_assignment(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summarization_criteria_assignment")
+
+    async with state.proxy() as data:
+        data['entry_data_type'] = message.text
+
+    await DialogFSM.summarization_criteria.set()
+    await message.answer(SUMMARY_OPTION_TITLE, parse_mode=ParseMode.MARKDOWN,
+                         reply_markup=summarize_by_criteria_keyboard)
 
 
 async def shutdown_storage(_dispatcher):

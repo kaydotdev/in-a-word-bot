@@ -1,8 +1,11 @@
 from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link, italic
+from aiogram.types import ReplyKeyboardMarkup
 
 from settings import REPO_LINK, DEV_LINK
 
+
+# STATIC MESSAGES
 BOT_TITLE = emojize(text(*[
     "Hi there! Finding the right information in the ", italic("digital era"),
     " may be the real challenge nowadays because it's growing ", bold("exponentially"),
@@ -16,6 +19,25 @@ BOT_TITLE = emojize(text(*[
     link("maintainer", DEV_LINK), ".\n\n", "Choose the available options below:"
 ], sep=''))
 
-SUMMARY_FROM_PLAIN_TEXT_OPTION = emojize(text(*['Plain text', ':notebook_with_decorative_cover:']))
+SUMMARY_OPTION_TITLE = emojize(text(*[
+    "Choose the summarization criteria from the options below.\n\n",
+    bold("Word frequency"), " - filter words based on the ", bold("term frequency"), " value.\n",
+    bold("Abstraction"), " - transform context with deep learning approaches.\n\n",
+    ":information_source:", " Use ", bold("Abstraction"), " option for general cases."
+], sep=''))
+
+# STATIC REPLY-KEYBOARD OPTIONS
+SUMMARY_FROM_PLAIN_TEXT_OPTION = emojize(text(*['Text', ':notebook_with_decorative_cover:']))
 SUMMARY_FROM_FILE_OPTION = emojize(text(*['File', ':floppy_disk:']))
-SUMMARY_FROM_WEB_RESOURCE_OPTION = emojize(text(*['Web-resource', ':globe_with_meridians:']))
+SUMMARY_FROM_WEB_RESOURCE_OPTION = emojize(text(*['Webpage', ':globe_with_meridians:']))
+
+MAIN_MENU_OPTIONS = [SUMMARY_FROM_PLAIN_TEXT_OPTION, SUMMARY_FROM_FILE_OPTION, SUMMARY_FROM_WEB_RESOURCE_OPTION]
+
+SUMMARIZE_BY_FREQUENCY_OPTION = text(*['Word frequency'])
+SUMMARIZE_BY_ABSTRACTION_OPTION = text(*['Abstraction'])
+
+SUMMARIZE_BY_CRITERIA_OPTIONS = [SUMMARIZE_BY_FREQUENCY_OPTION, SUMMARIZE_BY_ABSTRACTION_OPTION]
+
+# STATIC REPLY-KEYBOARDS
+main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*MAIN_MENU_OPTIONS)
+summarize_by_criteria_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARIZE_BY_CRITERIA_OPTIONS)
