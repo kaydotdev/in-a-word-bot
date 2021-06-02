@@ -104,8 +104,12 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
 
     if message.document.file_size > MAX_FILE_SIZE:
         await message.answer(FILE_SIZE_EXCEEDED_LIMIT_ERROR, parse_mode=ParseMode.MARKDOWN)
+    elif re.match(r"^.*\.(txt|TXT)$", message.document.file_name) is None:
+        await message.answer(FILE_WRONG_EXTENSION_ERROR, parse_mode=ParseMode.MARKDOWN)
     else:
         await message.answer(PROCESSING_FILE, disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+        logging.info(f"[{datetime.now()}@{message.from_user.username}] processing file '{message.document.file_name}'")
+
         file: io.BytesIO = await bot.download_file_by_id(message.document.file_id)
         file_containment = file.read().decode('utf-8')
 
