@@ -21,7 +21,7 @@ cache_storage = MemoryStorage()
 dispatcher = Dispatcher(bot, storage=cache_storage)
 
 if WEBHOOK_ENABLED:
-    WEBHOOK_URL = f"{WEBHOOK_DOMAIN}{WEBHOOK_PATH}"
+    WEBHOOK_URL = f"https://{WEBHOOK_HOST}:{WEBHOOK_PORT}{WEBHOOK_PATH}"
 
 
 @dispatcher.message_handler(commands=['cancel'], state='*')
@@ -195,12 +195,12 @@ if __name__ == '__main__':
     if WEBHOOK_ENABLED:
         logging.info(f'[{datetime.now()}@bot] starting in webhook mode')
         executor.start_webhook(dispatcher,
-                               WEBHOOK_PATH,
+                               webhook_path=WEBHOOK_PATH,
                                on_startup=on_startup,
                                on_shutdown=on_shutdown,
                                skip_updates=True,
-                               host=WEBHOOK_IP,
-                               port=WEBHOOK_PORT)
+                               host=WEBAPP_HOST,
+                               port=WEBAPP_PORT)
     else:
         logging.info(f'[{datetime.now()}@bot] starting in polling mode')
         executor.start_polling(dispatcher,
