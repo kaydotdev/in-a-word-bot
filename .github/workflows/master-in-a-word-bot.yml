@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://go.microsoft.com/fwlink/?linkid=2134798
-# More GitHub Actions for Azure: https://go.microsoft.com/fwlink/?linkid=2135048
-
-name: Azure App Service - in-a-word-bot(Production), Build and deploy Python app
+name: Build and deploy Python app
 
 on:
   push:
@@ -13,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # checkout the repo
     - name: 'Checkout Github Action'
       uses: actions/checkout@master
 
