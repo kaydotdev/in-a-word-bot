@@ -162,6 +162,7 @@ async def on_polling_shutdown(_dispatcher):
 
 if __name__ == '__main__':
     if WEBHOOK_ENABLED:
+        logging.info(f'[{datetime.now()}@bot] starting in webhook mode')
         executor.start_webhook(dispatcher,
                                WEBHOOK_PATH,
                                on_startup=on_startup,
@@ -170,6 +171,7 @@ if __name__ == '__main__':
                                host=WEBHOOK_IP,
                                port=WEBHOOK_PORT)
     else:
+        logging.info(f'[{datetime.now()}@bot] starting in polling mode')
         executor.start_polling(dispatcher,
                                skip_updates=True,
                                on_shutdown=on_polling_shutdown)
