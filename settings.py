@@ -4,6 +4,7 @@ import os
 # Core settings
 API_TOKEN = os.getenv('ENV_API_TOKEN')
 MAX_MESSAGE_LENGTH = 4096
+MAX_FILE_SIZE = 20480
 WEBHOOK_ENABLED = os.getenv('ENV_WEBHOOK_ENABLED') == "True"
 
 # Webhook mode settings

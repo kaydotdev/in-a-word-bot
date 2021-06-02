@@ -1,3 +1,4 @@
+import io
 import re
 import logging
 import aiohttp
@@ -7,6 +8,7 @@ from aiogram.types import ParseMode, ContentType
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+from lxml.html.clean import clean_html
 from datetime import datetime
 from static_content import *
 from settings import *
@@ -96,22 +98,19 @@ async def handle_plain_text_summary(message: types.Message, state: FSMContext):
                                  reply_markup=main_menu_keyboard)
 
 
-@dispatcher.message_handler(lambda message: re.match(r'/[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,'
-                                                     r'6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g',
-                                                     message.text) is not None,
-                            state=DialogFSM.web_resource_processing, content_types=[ContentType.TEXT])
-async def handle_web_resource_summary(message: types.Message, state: FSMContext):
-    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_web_resource_summary")
+@dispatcher.message_handler(state=DialogFSM.file_processing, content_types=[ContentType.DOCUMENT])
+async def handle_file_summary(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_file_summary")
 
-    async with state.proxy() as data:
-        try:
-            await message.answer(SENDING_REQUEST, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
+    if message.document.file_size > MAX_FILE_SIZE:
+        await message.answer(FILE_SIZE_EXCEEDED_LIMIT_ERROR, parse_mode=ParseMode.MARKDOWN)
+    else:
+        await message.answer(PROCESSING_FILE, disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+        file: io.BytesIO = await bot.download_file_by_id(message.document.file_id)
+        file_containment = file.read().decode('utf-8')
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(message.text) as response:
-                    response_body = await response.text()
-
-            generated_summary = await text_summary_async(response_body, data['SUMMARIZATION_CRITERIA_TYPE'])
+        async with state.proxy() as data:
+            generated_summary = await text_summary_async(file_containment, data['SUMMARIZATION_CRITERIA_TYPE'])
 
             await state.finish()
             await DialogFSM.main_menu.set()
@@ -120,12 +119,44 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
                 await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
                                      disable_web_page_preview=True,
                                      reply_markup=main_menu_keyboard)
-        except Exception as ex:
-            logging.error(f"[{datetime.now()}@bot] Failed to parse web resource content: {ex}")
 
-            await state.finish()
-            await DialogFSM.main_menu.set()
-            await message.answer(WEB_CRAWLER_HTTP_ERROR, parse_mode=ParseMode.MARKDOWN, reply_markup=main_menu_keyboard)
+        file.close()
+
+
+@dispatcher.message_handler(state=DialogFSM.web_resource_processing, content_types=[ContentType.TEXT])
+async def handle_web_resource_summary(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_web_resource_summary")
+
+    if re.match(r"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$",
+                message.text) is None:
+        await message.answer(INCORRECT_HTTP_FORMAT_ERROR, parse_mode=ParseMode.MARKDOWN)
+    else:
+        async with state.proxy() as data:
+            try:
+                await message.answer(SENDING_REQUEST, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(message.text) as response:
+                        response_body = await response.text()
+
+                generated_summary = await text_summary_async(clean_html(response_body),
+                                                             data['SUMMARIZATION_CRITERIA_TYPE'])
+
+                await state.finish()
+                await DialogFSM.main_menu.set()
+
+                for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
+                    await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
+                                         disable_web_page_preview=True,
+                                         reply_markup=main_menu_keyboard)
+            except Exception as ex:
+                logging.error(f"[{datetime.now()}@bot] Failed to parse web resource content: {ex}")
+
+                await state.finish()
+                await DialogFSM.main_menu.set()
+                await message.answer(WEB_CRAWLER_HTTP_ERROR,
+                                     parse_mode=ParseMode.MARKDOWN,
+                                     reply_markup=main_menu_keyboard)
 
 
 async def text_summary_async(entry_text: str, criteria: str):
