@@ -25,10 +25,10 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
     - run: |
-        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/in-a-word-bot:latest --build-arg \
+        docker build -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/in-a-word-bot:latest --build-arg \
         API_TOKEN=${{ secrets.API_TOKEN }} WEBHOOK_ENABLED=${{ secrets.WEBHOOK_ENABLED }} \
         WEBHOOK_HOST=${{ secrets.WEBHOOK_HOST }} WEBHOOK_PORT=${{ secrets.WEBHOOK_PORT }} \
         WEBHOOK_PATH=${{ secrets.WEBHOOK_PATH }} WEBAPP_HOST=${{ secrets.WEBAPP_HOST }} \
-        WEBAPP_PORT=${{ secrets.WEBAPP_PORT }} DEV_LINK=${{ secrets.DEV_LINK }} REPO_LINK=${{ secrets.REPO_LINK }}
+        WEBAPP_PORT=${{ secrets.WEBAPP_PORT }} DEV_LINK=${{ secrets.DEV_LINK }} REPO_LINK=${{ secrets.REPO_LINK }} .
 
         docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/in-a-word-bot:latest
