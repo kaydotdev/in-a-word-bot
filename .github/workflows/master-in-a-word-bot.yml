@@ -28,7 +28,7 @@ jobs:
     - name: Deploy application
       uses: azure/webapps-deploy@v2
       with:
-        app-name: in-a-word-bot
+        app-name: summary-bot
         slot-name: Production
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E6D80547D82D4229A81268661339C3E8 }}
 
