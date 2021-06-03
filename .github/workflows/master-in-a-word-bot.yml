@@ -19,16 +19,16 @@ jobs:
       with:
         python-version: '3.8'
 
-    - name: Build using AppService-Build
+    - name: Build application
       uses: azure/appservice-build@v2
       with:
         platform: python
         platform-version: '3.8'
 
-    - name: Run Azure webapp deploy action using publish profile credentials
+    - name: Deploy application
       uses: azure/webapps-deploy@v2
       with:
         app-name: in-a-word-bot
         slot-name: Production
-        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_06982A131506431A8ECE023C164A49E7 }}
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E6D80547D82D4229A81268661339C3E8 }}
 
