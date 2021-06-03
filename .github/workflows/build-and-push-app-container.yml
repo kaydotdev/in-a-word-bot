@@ -1,0 +1,34 @@
+name: Build and deploy Python app
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@main
+
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: 'Build and push image'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - run: |
+        docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/in-a-word-bot:${{ github.sha }} --build-arg
+        API_TOKEN=${{ secrets.API_TOKEN }} WEBHOOK_ENABLED=${{ secrets.WEBHOOK_ENABLED }}
+        WEBHOOK_HOST=${{ secrets.WEBHOOK_HOST }} WEBHOOK_PORT=${{ secrets.WEBHOOK_PORT }}
+        WEBHOOK_PATH=${{ secrets.WEBHOOK_PATH }} WEBAPP_HOST=${{ secrets.WEBAPP_HOST }}
+        WEBAPP_PORT=${{ secrets.WEBAPP_PORT }} DEV_LINK=${{ secrets.DEV_LINK }} REPO_LINK=${{ secrets.REPO_LINK }}
+
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/in-a-word-bot:${{ github.sha }}
