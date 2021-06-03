@@ -1,0 +1,34 @@
+name: Build and deploy Python app
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 'Checkout Github Action'
+      uses: actions/checkout@master
+
+
+    - name: Set up Python version
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.8'
+
+    - name: Build using AppService-Build
+      uses: azure/appservice-build@v2
+      with:
+        platform: python
+        platform-version: '3.8'
+
+    - name: Run Azure webapp deploy action using publish profile credentials
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: in-a-word-bot
+        slot-name: Production
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_06982A131506431A8ECE023C164A49E7 }}
+
