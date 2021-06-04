@@ -1,12 +1,15 @@
 import io
 import re
 import logging
+
+import asyncio
 import aiohttp
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ParseMode, ContentType
 from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.webhook import get_new_configured_app
 
 from lxml.html.clean import clean_html
 from datetime import datetime
@@ -14,9 +17,10 @@ from static_content import *
 from settings import *
 from states import *
 
+loop = asyncio.get_event_loop()
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=API_TOKEN)
+bot = Bot(token=API_TOKEN, loop=loop)
 cache_storage = MemoryStorage()
 dispatcher = Dispatcher(bot, storage=cache_storage)
 
@@ -172,27 +176,38 @@ async def text_summary_async(entry_text: str, criteria: str):
         return NO_SUMMARIZATION_CRITERIA_ERROR
 
 
-async def shutdown_storage(_dispatcher):
+async def shutdown_storage():
     logging.warning(f'[{datetime.now()}@bot] waiting for storage to shutdown')
-    await _dispatcher.storage.close()
-    await _dispatcher.storage.wait_closed()
+    await dispatcher.storage.close()
+    await dispatcher.storage.wait_closed()
 
 
-async def on_startup(_dispatcher):
+async def on_startup(_):
     logging.warning(f'[{datetime.now()}@bot] setting web hook on {WEBHOOK_URL}')
     await bot.set_webhook(WEBHOOK_URL)
 
 
-async def on_shutdown(_dispatcher):
+async def on_shutdown(_):
     logging.warning(f'[{datetime.now()}@bot] deleting web hook')
     await bot.delete_webhook()
-    await shutdown_storage(_dispatcher)
+    await shutdown_storage()
+    await bot.close()
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
 
 
-async def on_polling_shutdown(_dispatcher):
-    await shutdown_storage(_dispatcher)
+async def on_polling_shutdown():
+    await shutdown_storage()
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
+
+
+async def bot_factory():
+    logging.info(f'[{datetime.now()}@bot] start with bot factory')
+    app = get_new_configured_app(dispatcher=dispatcher, path=WEBHOOK_PATH)
+
+    app.on_startup.append(on_startup)
+    app.on_shutdown.append(on_shutdown)
+
+    return app
 
 
 if __name__ == '__main__':
