@@ -182,12 +182,20 @@ async def shutdown_storage():
     await dispatcher.storage.wait_closed()
 
 
-async def on_startup(_):
+async def on_startup_wsgi(app):
+    await on_startup()
+
+
+async def on_startup():
     logging.warning(f'[{datetime.now()}@bot] setting web hook on {WEBHOOK_URL}')
     await bot.set_webhook(WEBHOOK_URL)
 
 
-async def on_shutdown(_):
+async def on_shutdown_wsgi(app):
+    await on_shutdown()
+
+
+async def on_shutdown():
     logging.warning(f'[{datetime.now()}@bot] deleting web hook')
     await bot.delete_webhook()
     await shutdown_storage()
@@ -195,7 +203,7 @@ async def on_shutdown(_):
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
 
 
-async def on_polling_shutdown():
+async def on_polling_shutdown(app):
     await shutdown_storage()
     logging.warning(f'[{datetime.now()}@bot] bot was successfully shut down')
 
@@ -204,8 +212,8 @@ async def bot_factory():
     logging.info(f'[{datetime.now()}@bot] start with bot factory')
     app = get_new_configured_app(dispatcher=dispatcher, path=WEBHOOK_PATH)
 
-    app.on_startup.append(on_startup)
-    app.on_shutdown.append(on_shutdown)
+    app.on_startup.append(on_startup_wsgi)
+    app.on_shutdown.append(on_shutdown_wsgi)
 
     return app
 
