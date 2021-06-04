@@ -11,11 +11,11 @@ from aiogram.dispatcher import FSMContext
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.webhook import get_new_configured_app
 
-from lxml.html.clean import clean_html
 from datetime import datetime
 from static_content import *
 from settings import *
 from states import *
+from utils import *
 
 loop = asyncio.get_event_loop()
 logging.basicConfig(level=logging.INFO)
@@ -112,7 +112,7 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
 
     if message.document.file_size > MAX_FILE_SIZE:
         await message.answer(FILE_SIZE_EXCEEDED_LIMIT_ERROR, parse_mode=ParseMode.MARKDOWN)
-    elif re.match(r"^.*\.(txt|TXT)$", message.document.file_name) is None:
+    elif re.match(re_file_format, message.document.file_name) is None:
         await message.answer(FILE_WRONG_EXTENSION_ERROR, parse_mode=ParseMode.MARKDOWN)
     else:
         await message.answer(PROCESSING_FILE, disable_web_page_preview=True, reply_markup=main_menu_keyboard)
@@ -139,8 +139,7 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
 async def handle_web_resource_summary(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_web_resource_summary")
 
-    if re.match(r"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$",
-                message.text) is None:
+    if re.match(re_match_http_url, message.text) is None:
         await message.answer(INCORRECT_HTTP_FORMAT_ERROR, parse_mode=ParseMode.MARKDOWN)
     else:
         async with state.proxy() as data:
@@ -151,7 +150,7 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
                     async with session.get(message.text) as response:
                         response_body = await response.text()
 
-                generated_summary = await text_summary_async(clean_html(response_body),
+                generated_summary = await text_summary_async(remove_html_tags(response_body),
                                                              data['SUMMARIZATION_CRITERIA_TYPE'])
 
                 await state.finish()
