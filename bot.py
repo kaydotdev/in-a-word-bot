@@ -37,7 +37,9 @@ async def handle_cancel(message: types.Message, state: FSMContext):
         return
 
     await state.finish()
-    await message.answer(f'The command has been cancelled.', reply_markup=empty_keyboard)
+    await DialogFSM.main_menu.set()
+    await message.answer(COMMAND_CANCELLED, parse_mode=ParseMode.MARKDOWN)
+    await send_main_menu_keyboard(message)
 
 
 @dispatcher.message_handler(commands=['start'])
@@ -46,7 +48,8 @@ async def handle_start(message: types.Message):
 
     await DialogFSM.main_menu.set()
     await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN,
-                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+                         disable_web_page_preview=True)
+    await send_main_menu_keyboard(message)
 
 
 @dispatcher.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS,
@@ -98,8 +101,9 @@ async def handle_plain_text_summary(message: types.Message, state: FSMContext):
         # and delivered in sequence
         for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
             await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
-                                 disable_web_page_preview=True,
-                                 reply_markup=main_menu_keyboard)
+                                 disable_web_page_preview=True)
+
+        await send_main_menu_keyboard(message)
 
 
 @dispatcher.message_handler(state=DialogFSM.file_processing, content_types=[ContentType.DOCUMENT])
@@ -125,9 +129,9 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
 
             for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
                 await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
-                                     disable_web_page_preview=True,
-                                     reply_markup=main_menu_keyboard)
+                                     disable_web_page_preview=True)
 
+        await send_main_menu_keyboard(message)
         file.close()
 
 
@@ -155,8 +159,9 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
 
                 for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
                     await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
-                                         disable_web_page_preview=True,
-                                         reply_markup=main_menu_keyboard)
+                                         disable_web_page_preview=True)
+
+                await send_main_menu_keyboard(message)
             except Exception as ex:
                 logging.error(f"[{datetime.now()}@bot] Failed to parse web resource content: {ex}")
 
@@ -174,6 +179,11 @@ async def text_summary_async(entry_text: str, criteria: str):
         return entry_text
     else:
         return NO_SUMMARIZATION_CRITERIA_ERROR
+
+
+async def send_main_menu_keyboard(message: types.Message):
+    await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
+                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
 
 
 async def shutdown_storage():

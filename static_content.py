@@ -16,8 +16,9 @@ BOT_TITLE = emojize(text(*[
     ", or ", bold("link to an external resource"), ", and I will summarize it for you in a word :grin:.\n\n",
     "I'm an open-source project, and you can find my ", link("source code here", REPO_LINK), ". ",
     "If you want to report an issue or have some suggestions for improvement, contact the ",
-    link("maintainer", DEV_LINK), ".\n\n", "Choose the available options below:"
-], sep=''))
+    link("maintainer", DEV_LINK), "."], sep=''))
+
+CHOOSE_AVAILABLE_OPTIONS = emojize(text(*["Choose the available options below:"], sep=''))
 
 SUMMARY_OPTION_TITLE = emojize(text(*[
     "Choose the summarization criteria from the options below.\n\n",
@@ -32,6 +33,10 @@ SENDING_REQUEST = emojize(text(*[
 
 PROCESSING_FILE = emojize(text(*[
     ":floppy_disk:", "Processing uploaded file..."
+], sep=' '))
+
+COMMAND_CANCELLED = emojize(text(*[
+    ":warning:", "The command has been cancelled."
 ], sep=' '))
 
 # STATIC REPLY-KEYBOARD OPTIONS
