@@ -92,6 +92,7 @@ async def handle_plain_text_summary(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_plain_text_summary")
 
     async with state.proxy() as data:
+        await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
         generated_summary = await text_summary_async(message.text, data['SUMMARIZATION_CRITERIA_TYPE'])
 
         await state.finish()
@@ -123,6 +124,7 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
         file_containment = file.read().decode('utf-8')
 
         async with state.proxy() as data:
+            await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
             generated_summary = await text_summary_async(file_containment, data['SUMMARIZATION_CRITERIA_TYPE'])
 
             await state.finish()
@@ -151,6 +153,7 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
                     async with session.get(message.text) as response:
                         response_body = await response.text()
 
+                await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
                 generated_summary = await text_summary_async(remove_html_tags(response_body),
                                                              data['SUMMARIZATION_CRITERIA_TYPE'])
 

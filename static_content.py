@@ -39,6 +39,10 @@ COMMAND_CANCELLED = emojize(text(*[
     ":warning:", "The command has been cancelled."
 ], sep=' '))
 
+GENERATING_SUMMARY = emojize(text(*[
+    ":notebook_with_decorative_cover:", "Generating summary..."
+], sep=' '))
+
 # STATIC REPLY-KEYBOARD OPTIONS
 SUMMARY_FROM_PLAIN_TEXT_OPTION = emojize(text(*['Text', ':notebook_with_decorative_cover:']))
 SUMMARY_FROM_FILE_OPTION = emojize(text(*['File', ':floppy_disk:']))
