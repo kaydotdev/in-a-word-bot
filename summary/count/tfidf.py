@@ -7,6 +7,9 @@ from nltk import sent_tokenize, word_tokenize, WordNetLemmatizer
 from nltk.corpus import stopwords
 
 nltk.download('wordnet')
+nltk.download('stopwords')
+nltk.download('punkt')
+
 lemmatizer = WordNetLemmatizer()
 sw = set(stopwords.words("english"))
 
