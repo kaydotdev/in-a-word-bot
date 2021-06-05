@@ -43,9 +43,12 @@ async def handle_cancel(message: types.Message, state: FSMContext):
     await send_main_menu_keyboard(message)
 
 
-@dispatcher.message_handler(commands=['start'])
-async def handle_start(message: types.Message):
+@dispatcher.message_handler(commands=['start'], state='*')
+async def handle_start(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_start")
+
+    if await state.get_state() is not None:
+        await state.finish()
 
     await DialogFSM.main_menu.set()
     await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN,
