@@ -13,6 +13,7 @@ from aiogram.dispatcher.webhook import get_new_configured_app
 
 from datetime import datetime
 from static_content import *
+from summary.count import *
 from settings import *
 from states import *
 from utils import *
@@ -173,7 +174,7 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
 
 async def text_summary_async(entry_text: str, criteria: str):
     if criteria == SUMMARIZE_BY_FREQUENCY_OPTION:
-        return entry_text
+        return tf_idf_summary(entry_text)
     elif criteria == SUMMARIZE_BY_ABSTRACTION_OPTION:
         return entry_text
     else:
