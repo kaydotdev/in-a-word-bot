@@ -226,6 +226,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.models
 env/
 venv/
 ENV/
