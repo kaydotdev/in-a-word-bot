@@ -1,5 +1,4 @@
 import io
-import re
 import logging
 
 import asyncio
