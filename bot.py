@@ -12,6 +12,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.webhook import get_new_configured_app
 
 from datetime import datetime
+from summary.abstract import *
 from static_content import *
 from summary.count import *
 from settings import *
@@ -24,6 +25,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN, loop=loop)
 cache_storage = MemoryStorage()
 dispatcher = Dispatcher(bot, storage=cache_storage)
+summary_transformer = SummaryTransformer(TOKENIZER_CONFIGS, TRANSFORMER_WEIGHTS_CONFIGS)
 
 if WEBHOOK_ENABLED:
     WEBHOOK_URL = f"https://{WEBHOOK_HOST}:{WEBHOOK_PORT}{WEBHOOK_PATH}"
@@ -182,7 +184,7 @@ async def text_summary_async(entry_text: str, criteria: str):
     if criteria == SUMMARIZE_BY_FREQUENCY_OPTION:
         return tf_idf_summary(entry_text)
     elif criteria == SUMMARIZE_BY_ABSTRACTION_OPTION:
-        return entry_text
+        return summary_transformer.summarize(entry_text)
     else:
         return NO_SUMMARIZATION_CRITERIA_ERROR
 

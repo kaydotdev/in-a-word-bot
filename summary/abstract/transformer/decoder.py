@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from attention import MultiHeadAttention
-from embedding import positional_encoding
+from .attention import MultiHeadAttention
+from .embedding import positional_encoding
 
 
 class DecoderLayer(tf.keras.layers.Layer):
