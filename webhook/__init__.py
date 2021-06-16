@@ -23,6 +23,8 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN, loop=loop)
 dispatcher = Dispatcher(bot, storage=MemoryStorage())
+
+# TODO: Load configs from Azure Blob Storage
 # summary_transformer = SummaryTransformer(TOKENIZER_CONFIGS, TRANSFORMER_WEIGHTS_CONFIGS)
 
 
