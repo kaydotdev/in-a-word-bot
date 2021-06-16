@@ -22,9 +22,9 @@ CHOOSE_AVAILABLE_OPTIONS = emojize(text(*["Choose the available options below:"]
 
 SUMMARY_OPTION_TITLE = emojize(text(*[
     "Choose the summarization criteria from the options below.\n\n",
-    bold("Word frequency"), " - filter words based on the ", bold("term frequency"), " value.\n",
+    bold("Word frequency"), " - filter sentences based on the ", bold("term frequency"), " value.\n",
     bold("Abstraction"), " - transform context with deep learning approaches.\n\n",
-    ":information_source:", " Use ", bold("Abstraction"), " option for general cases."
+    ":information_source:", " Option ", bold("Word frequency"), " performs summarization faster and uses only provided words and sentences. It is better choice for the most of cases."
 ], sep=''))
 
 SENDING_REQUEST = emojize(text(*[
