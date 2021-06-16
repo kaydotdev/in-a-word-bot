@@ -22,8 +22,8 @@ loop = asyncio.get_event_loop()
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN, loop=loop)
-dispatcher = Dispatcher(bot)
-summary_transformer = SummaryTransformer(TOKENIZER_CONFIGS, TRANSFORMER_WEIGHTS_CONFIGS)
+dispatcher = Dispatcher(bot, storage=MemoryStorage())
+# summary_transformer = SummaryTransformer(TOKENIZER_CONFIGS, TRANSFORMER_WEIGHTS_CONFIGS)
 
 
 @dispatcher.message_handler(commands=['cancel'], state='*')
@@ -179,7 +179,9 @@ async def text_summary_async(entry_text: str, criteria: str):
     if criteria == SUMMARIZE_BY_FREQUENCY_OPTION:
         return tf_idf_summary(entry_text)
     elif criteria == SUMMARIZE_BY_ABSTRACTION_OPTION:
-        return summary_transformer.summarize(entry_text)
+        # TODO: Load configs from Azure Blob Storage
+        # return summary_transformer.summarize(entry_text)
+        return tf_idf_summary(entry_text)
     else:
         return NO_SUMMARIZATION_CRITERIA_ERROR
 
@@ -191,12 +193,8 @@ async def send_main_menu_keyboard(message: types.Message):
 
 async def main(req: func.HttpRequest) -> func.HttpResponse:
     Bot.set_current(bot)
+    Dispatcher.set_current(dispatcher)
 
-    dispatcher.storage = MemoryStorage()
     request_update = types.Update(**req.get_json())
-
     await dispatcher.process_updates([request_update])
-    await dispatcher.storage.close()
-    await dispatcher.storage.wait_closed()
-
     return func.HttpResponse(status_code=200)
