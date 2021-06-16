@@ -8,7 +8,7 @@ import aiohttp
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ParseMode, ContentType
 from aiogram.dispatcher import FSMContext
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.redis import RedisStorage
 
 from datetime import datetime
 from webhook.summary.abstract import *
@@ -22,7 +22,8 @@ loop = asyncio.get_event_loop()
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN, loop=loop)
-dispatcher = Dispatcher(bot, storage=MemoryStorage())
+dispatcher = Dispatcher(bot, storage=RedisStorage(REDIS_HOST, REDIS_PORT,
+                        db=REDIS_DB, ssl=True, password=REDIS_PASSWORD))
 
 # TODO: Load configs from Azure Blob Storage
 # summary_transformer = SummaryTransformer(TOKENIZER_CONFIGS, TRANSFORMER_WEIGHTS_CONFIGS)

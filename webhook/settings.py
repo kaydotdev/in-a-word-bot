@@ -13,3 +13,9 @@ MAX_FILE_SIZE = 20480
 # Miscellaneous settings
 DEV_LINK = os.getenv('ENV_DEV_LINK')
 REPO_LINK = os.getenv('ENV_REPO_LINK')
+
+# State storage settings
+REDIS_HOST = os.getenv('ENV_REDIS_HOST')
+REDIS_PORT = int(os.getenv('ENV_REDIS_PORT'))
+REDIS_DB = int(os.getenv('ENV_REDIS_DB'))
+REDIS_PASSWORD = os.getenv('ENV_REDIS_PASSWORD')
