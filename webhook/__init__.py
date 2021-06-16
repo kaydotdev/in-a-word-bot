@@ -22,8 +22,7 @@ loop = asyncio.get_event_loop()
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN, loop=loop)
-dispatcher = Dispatcher(bot, storage=RedisStorage(REDIS_HOST, REDIS_PORT,
-                        db=REDIS_DB, ssl=True, password=REDIS_PASSWORD))
+dispatcher = Dispatcher(bot)
 
 # TODO: Load configs from Azure Blob Storage
 # summary_transformer = SummaryTransformer(TOKENIZER_CONFIGS, TRANSFORMER_WEIGHTS_CONFIGS)
@@ -198,6 +197,11 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
     Bot.set_current(bot)
     Dispatcher.set_current(dispatcher)
 
+    dispatcher.storage = RedisStorage(REDIS_HOST, REDIS_PORT,
+                                      db=REDIS_DB, ssl=True, password=REDIS_PASSWORD)
     request_update = types.Update(**req.get_json())
+
     await dispatcher.process_updates([request_update])
+    await dispatcher.storage.close()
+    await dispatcher.storage.wait_closed()
     return func.HttpResponse(status_code=200)
