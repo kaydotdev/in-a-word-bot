@@ -2,7 +2,7 @@ from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link, italic
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from settings import REPO_LINK, DEV_LINK
+from .settings import REPO_LINK, DEV_LINK
 
 # STATIC MESSAGES
 BOT_TITLE = emojize(text(*[
