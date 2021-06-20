@@ -197,8 +197,7 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
     Bot.set_current(bot)
     Dispatcher.set_current(dispatcher)
 
-    dispatcher.storage = RedisStorage(REDIS_HOST, REDIS_PORT,
-                                      db=REDIS_DB, ssl=True, password=REDIS_PASSWORD)
+    dispatcher.storage = MongoStorage(uri=MONGO_CONNECTION_URL)
     request_update = types.Update(**req.get_json())
 
     await dispatcher.process_updates([request_update])
