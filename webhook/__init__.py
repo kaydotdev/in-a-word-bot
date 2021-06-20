@@ -8,7 +8,7 @@ import aiohttp
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ParseMode, ContentType
 from aiogram.dispatcher import FSMContext
-from aiogram.contrib.fsm_storage.redis import RedisStorage
+from aiogram.contrib.fsm_storage.mongo import MongoStorage
 
 from datetime import datetime
 from webhook.summary.abstract import *
