@@ -21,7 +21,7 @@ from .utils import remove_html_tags, normalize_http_response,\
 
 async def extract_summary(message: types.Message, state: FSMContext, text: str):
     async with state.proxy() as data:
-        await send_to_processing_queue(text, data['SUMMARY_TYPE'])
+        await send_to_processing_queue(message.chat.id, text, data['SUMMARY_TYPE'])
 
         await state.finish()
         await DialogFSM.main_menu.set()

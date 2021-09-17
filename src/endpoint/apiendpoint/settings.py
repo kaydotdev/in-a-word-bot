@@ -12,3 +12,6 @@ REPO_LINK = os.getenv('ENV_REPO_LINK')
 
 # State storage settings
 MONGO_CONNECTION_URL = os.getenv('ENV_MONGO_CONNECTION_URL')
+
+# Request data storage
+REQUEST_STORAGE_CONNECTION_STRING = os.getenv('ENV_REQUEST_STORAGE_CONNECTION_STRING')
