@@ -1,34 +1,43 @@
 import io
+import re
 import logging
 import azure.functions as func
 
-import asyncio
 import aiohttp
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ParseMode, ContentType
 from aiogram.dispatcher import FSMContext
-from aiogram.contrib.fsm_storage.mongo import MongoStorage
 
 from datetime import datetime
-from webhook.summary.abstract import *
-from webhook.static_content import *
-from webhook.summary.count import *
-from webhook.settings import *
-from webhook.states import *
-from webhook.utils import *
 
-loop = asyncio.get_event_loop()
-logging.basicConfig(level=logging.INFO)
-
-bot = Bot(token=API_TOKEN, loop=loop)
-dispatcher = Dispatcher(bot)
-
-# TODO: Load configs from Azure Blob Storage
-# summary_transformer = SummaryTransformer(TOKENIZER_CONFIGS, TRANSFORMER_WEIGHTS_CONFIGS)
+from .static import *
+from .processing import send_to_processing_queue
+from .settings import MAX_FILE_SIZE, MAX_MESSAGE_LENGTH
+from .bot import bot_instance, dispatcher_instance, DialogFSM
+from .utils import remove_html_tags, normalize_http_response,\
+                   re_file_format, re_match_http_url
 
 
-@dispatcher.message_handler(commands=['cancel'], state='*')
+async def extract_summary(message: types.Message, state: FSMContext, text: str):
+    async with state.proxy() as data:
+        await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
+        generated_summary = send_to_processing_queue(text, data['SUMMARIZATION_CRITERIA_TYPE'])
+
+        await state.finish()
+        await DialogFSM.main_menu.set()
+
+        # Max length of single Telegram message is 4096 characters. If gathered
+        # text contains more symbols, it will be split into chunks of MAX_MESSAGE_LENGTH
+        # and delivered in sequence
+        for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
+            await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
+                                 disable_web_page_preview=True)
+
+        await send_main_menu_keyboard(message)
+
+
+@dispatcher_instance.message_handler(commands=['cancel'], state='*')
 async def handle_cancel(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_cancel")
     current_state = await state.get_state()
@@ -42,7 +51,7 @@ async def handle_cancel(message: types.Message, state: FSMContext):
     await send_main_menu_keyboard(message)
 
 
-@dispatcher.message_handler(commands=['start'], state='*')
+@dispatcher_instance.message_handler(commands=['start'], state='*')
 async def handle_start(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_start")
 
@@ -55,8 +64,7 @@ async def handle_start(message: types.Message, state: FSMContext):
     await send_main_menu_keyboard(message)
 
 
-@dispatcher.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS,
-                            state=DialogFSM.main_menu)
+@dispatcher_instance.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS, state=DialogFSM.main_menu)
 async def handle_summarization_criteria_assignment(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summarization_criteria_assignment")
 
@@ -68,8 +76,7 @@ async def handle_summarization_criteria_assignment(message: types.Message, state
                              reply_markup=summarize_by_criteria_keyboard)
 
 
-@dispatcher.message_handler(lambda message: message.text in SUMMARIZE_BY_CRITERIA_OPTIONS,
-                            state=DialogFSM.summarization_criteria)
+@dispatcher_instance.message_handler(lambda message: message.text in SUMMARIZE_BY_CRITERIA_OPTIONS, state=DialogFSM.summarization_criteria)
 async def handle_user_data_source_input(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_user_data_source_input")
 
@@ -89,28 +96,14 @@ async def handle_user_data_source_input(message: types.Message, state: FSMContex
                              parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
 
 
-@dispatcher.message_handler(state=DialogFSM.plain_text_processing, content_types=[ContentType.TEXT])
+@dispatcher_instance.message_handler(state=DialogFSM.plain_text_processing, content_types=[ContentType.TEXT])
 async def handle_plain_text_summary(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_plain_text_summary")
 
-    async with state.proxy() as data:
-        await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
-        generated_summary = await text_summary_async(message.text, data['SUMMARIZATION_CRITERIA_TYPE'])
-
-        await state.finish()
-        await DialogFSM.main_menu.set()
-
-        # Max length of single Telegram message is 4096 characters. If gathered
-        # text contains more symbols, it will be split into chunks of MAX_MESSAGE_LENGTH
-        # and delivered in sequence
-        for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
-            await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
-                                 disable_web_page_preview=True)
-
-        await send_main_menu_keyboard(message)
+    await extract_summary(message, state, message.text)
 
 
-@dispatcher.message_handler(state=DialogFSM.file_processing, content_types=[ContentType.DOCUMENT])
+@dispatcher_instance.message_handler(state=DialogFSM.file_processing, content_types=[ContentType.DOCUMENT])
 async def handle_file_summary(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_file_summary")
 
@@ -125,22 +118,12 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
         file: io.BytesIO = await bot.download_file_by_id(message.document.file_id)
         file_containment = file.read().decode('utf-8')
 
-        async with state.proxy() as data:
-            await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
-            generated_summary = await text_summary_async(file_containment, data['SUMMARIZATION_CRITERIA_TYPE'])
+        await extract_summary(message, state, file_containment)
 
-            await state.finish()
-            await DialogFSM.main_menu.set()
-
-            for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
-                await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
-                                     disable_web_page_preview=True)
-
-        await send_main_menu_keyboard(message)
         file.close()
 
 
-@dispatcher.message_handler(state=DialogFSM.web_resource_processing, content_types=[ContentType.TEXT])
+@dispatcher_instance.message_handler(state=DialogFSM.web_resource_processing, content_types=[ContentType.TEXT])
 async def handle_web_resource_summary(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_web_resource_summary")
 
@@ -155,18 +138,11 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
                     async with session.get(message.text) as response:
                         response_body = await response.text()
 
-                await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
-                generated_summary = await text_summary_async(remove_html_tags(response_body),
-                                                             data['SUMMARIZATION_CRITERIA_TYPE'])
-
-                await state.finish()
-                await DialogFSM.main_menu.set()
-
-                for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
-                    await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
-                                         disable_web_page_preview=True)
-
-                await send_main_menu_keyboard(message)
+                await extract_summary(message, state,
+                    normalize_http_response(
+                        remove_html_tags(response_body)
+                    )
+                )
             except Exception as ex:
                 logging.error(f"[{datetime.now()}@bot] Failed to parse web resource content: {ex}")
 
@@ -177,30 +153,15 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
                                      reply_markup=main_menu_keyboard)
 
 
-async def text_summary_async(entry_text: str, criteria: str):
-    if criteria == SUMMARIZE_BY_FREQUENCY_OPTION:
-        return tf_idf_summary(entry_text)
-    elif criteria == SUMMARIZE_BY_ABSTRACTION_OPTION:
-        # TODO: Load configs from Azure Blob Storage
-        # return summary_transformer.summarize(entry_text)
-        return tf_idf_summary(entry_text)
-    else:
-        return NO_SUMMARIZATION_CRITERIA_ERROR
-
-
 async def send_main_menu_keyboard(message: types.Message):
     await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
                          disable_web_page_preview=True, reply_markup=main_menu_keyboard)
 
 
 async def main(req: func.HttpRequest) -> func.HttpResponse:
-    Bot.set_current(bot)
-    Dispatcher.set_current(dispatcher)
+    Bot.set_current(bot_instance)
+    Dispatcher.set_current(dispatcher_instance)
 
-    dispatcher.storage = MongoStorage(uri=MONGO_CONNECTION_URL)
     request_update = types.Update(**req.get_json())
-
-    await dispatcher.process_updates([request_update])
-    await dispatcher.storage.close()
-    await dispatcher.storage.wait_closed()
+    await dispatcher_instance.process_updates([request_update])
     return func.HttpResponse(status_code=200)

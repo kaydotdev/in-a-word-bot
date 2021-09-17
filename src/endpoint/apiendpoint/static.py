@@ -21,10 +21,9 @@ BOT_TITLE = emojize(text(*[
 CHOOSE_AVAILABLE_OPTIONS = emojize(text(*["Choose the available options below:"], sep=''))
 
 SUMMARY_OPTION_TITLE = emojize(text(*[
-    "Choose the summarization criteria from the options below.\n\n",
-    bold("Word frequency"), " - filter sentences based on the ", bold("term frequency"), " value.\n",
-    bold("Abstraction"), " - transform context with deep learning approaches.\n\n",
-    ":information_source:", " Option ", bold("Word frequency"), " performs summarization faster and uses only provided words and sentences. It is better choice for the most of cases."
+    "Choose the type of text summarization you need:\n\n",
+    bold("Extractive"), " - summary is being formed by copying parts of source text through a measure of importance and then combining those parts of the sentences together to render a summary.\n",
+    bold("Abstractive"), " - the process involves generating new phrases, by reshaping or using words that weren’t originally there in the original text.\n\n",
 ], sep=''))
 
 SENDING_REQUEST = emojize(text(*[
@@ -50,10 +49,10 @@ SUMMARY_FROM_WEB_RESOURCE_OPTION = emojize(text(*['Webpage', ':globe_with_meridi
 
 MAIN_MENU_OPTIONS = [SUMMARY_FROM_PLAIN_TEXT_OPTION, SUMMARY_FROM_FILE_OPTION, SUMMARY_FROM_WEB_RESOURCE_OPTION]
 
-SUMMARIZE_BY_FREQUENCY_OPTION = text(*['Word frequency'])
-SUMMARIZE_BY_ABSTRACTION_OPTION = text(*['Abstraction'])
+SUMMARIZE_EXTRACTIVE_OPTION = emojize(text(*['Extractive']))
+SUMMARIZE_ABSTRACTIVE_OPTION = emojize(text(*['Abstractive']))
 
-SUMMARIZE_BY_CRITERIA_OPTIONS = [SUMMARIZE_BY_FREQUENCY_OPTION, SUMMARIZE_BY_ABSTRACTION_OPTION]
+SUMMARIZE_BY_CRITERIA_OPTIONS = [SUMMARIZE_EXTRACTIVE_OPTION, SUMMARIZE_ABSTRACTIVE_OPTION]
 
 CHOSEN_SUMMARY_RESPONSES = {
     SUMMARY_FROM_PLAIN_TEXT_OPTION: emojize(text(*[
@@ -64,7 +63,7 @@ CHOSEN_SUMMARY_RESPONSES = {
         'Good! Now send me the file, which contains text you want to summarize.\n\n',
         ':warning:', bold('WARNING'), ':\n',
         '1) For now the only accepted file format is ".', bold('TXT'), '".\n',
-        '2) Max file size is ', bold('20kB'), '.'
+        '2) Max file size is ', bold('50kB'), '.'
     ], sep='')),
     SUMMARY_FROM_WEB_RESOURCE_OPTION: emojize(text(*[
         'Good! Now send me an URL to external web resource to parse and summarize.\n\n',

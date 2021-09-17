@@ -4,6 +4,7 @@ from lxml import html
 re_clean_html_tags = re.compile(r"<.*?>")
 re_match_http_url = re.compile(r"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$")
 re_file_format = re.compile(r"^.*\.(txt|TXT)$")
+re_normalize_http_response = re.compile(r"[ \n\t\r]+")
 
 
 def remove_html_tags(response: str):
@@ -17,3 +18,7 @@ def remove_html_tags(response: str):
         __remove_all_by_xpath__(tree, xpath)
 
     return re.sub(re_clean_html_tags, '', html.tostring(tree).decode('utf-8'))
+
+
+def normalize_http_response(response: str):
+    return re_normalize_http_response.sub(' ', response)
