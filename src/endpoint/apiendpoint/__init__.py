@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .static import *
 from .processing import send_to_processing_queue
-from .settings import MAX_FILE_SIZE, MAX_MESSAGE_LENGTH
+from .settings import MAX_FILE_SIZE
 from .bot import bot_instance, dispatcher_instance, DialogFSM
 from .utils import remove_html_tags, normalize_http_response,\
                    re_file_format, re_match_http_url
@@ -21,34 +21,26 @@ from .utils import remove_html_tags, normalize_http_response,\
 
 async def extract_summary(message: types.Message, state: FSMContext, text: str):
     async with state.proxy() as data:
-        await message.answer(GENERATING_SUMMARY, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
-        generated_summary = send_to_processing_queue(text, data['SUMMARIZATION_CRITERIA_TYPE'])
+        await send_to_processing_queue(text, data['SUMMARY_TYPE'])
 
         await state.finish()
         await DialogFSM.main_menu.set()
 
-        # Max length of single Telegram message is 4096 characters. If gathered
-        # text contains more symbols, it will be split into chunks of MAX_MESSAGE_LENGTH
-        # and delivered in sequence
-        for i in range(0, len(generated_summary), MAX_MESSAGE_LENGTH):
-            await message.answer(generated_summary[i:i + MAX_MESSAGE_LENGTH],
-                                 disable_web_page_preview=True)
-
-        await send_main_menu_keyboard(message)
+        await message.answer(PROCESSING_STARTED, parse_mode=ParseMode.MARKDOWN,
+                             disable_web_page_preview=True, reply_markup=main_menu_keyboard)
 
 
 @dispatcher_instance.message_handler(commands=['cancel'], state='*')
 async def handle_cancel(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_cancel")
-    current_state = await state.get_state()
 
-    if current_state is None:
+    if await state.get_state() is None:
         return
 
     await state.finish()
     await DialogFSM.main_menu.set()
-    await message.answer(COMMAND_CANCELLED, parse_mode=ParseMode.MARKDOWN)
-    await send_main_menu_keyboard(message)
+    await message.answer(COMMAND_CANCELLED, parse_mode=ParseMode.MARKDOWN,
+                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
 
 
 @dispatcher_instance.message_handler(commands=['start'], state='*')
@@ -60,28 +52,43 @@ async def handle_start(message: types.Message, state: FSMContext):
 
     await DialogFSM.main_menu.set()
     await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN,
-                         disable_web_page_preview=True)
-    await send_main_menu_keyboard(message)
+                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
 
 
 @dispatcher_instance.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS, state=DialogFSM.main_menu)
-async def handle_summarization_criteria_assignment(message: types.Message, state: FSMContext):
-    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summarization_criteria_assignment")
+async def handle_summary_content_assignment(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summary_content_assignment")
+
+    if message.text == MENU_NEW_SUMMARY_OPTION:
+        await DialogFSM.content_type_selection.set()
+        await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
+                             reply_markup=summary_content_option_keyboard)
+    elif message.text == MENU_ABORT_REQUEST_OPTION:
+        await message.answer("Request is aborted.", parse_mode=ParseMode.MARKDOWN)
+    elif message.text == MENU_CHECK_STATUS_OPTION:
+        await message.answer("Nothing to display.", parse_mode=ParseMode.MARKDOWN)
+    elif message.text == MENU_ACKNOWLEDGEMENTS_OPTION:
+        await message.answer(ACKNOWLEDGEMENTS, parse_mode=ParseMode.MARKDOWN)
+
+
+@dispatcher_instance.message_handler(lambda message: message.text in SUMMARY_CONTENT_OPTIONS, state=DialogFSM.content_type_selection)
+async def handle_summary_type_assignment(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summary_type_assignment")
 
     async with state.proxy() as data:
         data['USER_DATA_TYPE'] = message.text
 
-        await DialogFSM.summarization_criteria.set()
+        await DialogFSM.summary_type_selection.set()
         await message.answer(SUMMARY_OPTION_TITLE, parse_mode=ParseMode.MARKDOWN,
-                             reply_markup=summarize_by_criteria_keyboard)
+                             reply_markup=summary_type_option_keyboard)
 
 
-@dispatcher_instance.message_handler(lambda message: message.text in SUMMARIZE_BY_CRITERIA_OPTIONS, state=DialogFSM.summarization_criteria)
+@dispatcher_instance.message_handler(lambda message: message.text in SUMMARY_TYPE_OPTIONS, state=DialogFSM.summary_type_selection)
 async def handle_user_data_source_input(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_user_data_source_input")
 
     async with state.proxy() as data:
-        data['SUMMARIZATION_CRITERIA_TYPE'] = message.text
+        data['SUMMARY_TYPE'] = message.text
 
         if data['USER_DATA_TYPE'] == SUMMARY_FROM_PLAIN_TEXT_OPTION:
             await DialogFSM.plain_text_processing.set()
@@ -115,7 +122,7 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
         await message.answer(PROCESSING_FILE, disable_web_page_preview=True, reply_markup=main_menu_keyboard)
         logging.info(f"[{datetime.now()}@{message.from_user.username}] processing file '{message.document.file_name}'")
 
-        file: io.BytesIO = await bot.download_file_by_id(message.document.file_id)
+        file: io.BytesIO = await bot_instance.download_file_by_id(message.document.file_id)
         file_containment = file.read().decode('utf-8')
 
         await extract_summary(message, state, file_containment)
@@ -130,32 +137,26 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
     if re.match(re_match_http_url, message.text) is None:
         await message.answer(INCORRECT_HTTP_FORMAT_ERROR, parse_mode=ParseMode.MARKDOWN)
     else:
-        async with state.proxy() as data:
-            try:
-                await message.answer(SENDING_REQUEST, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
+        try:
+            await message.answer(SENDING_REQUEST, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
 
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(message.text) as response:
-                        response_body = await response.text()
+            async with aiohttp.ClientSession() as session:
+                async with session.get(message.text) as response:
+                    response_body = await response.text()
 
-                await extract_summary(message, state,
-                    normalize_http_response(
-                        remove_html_tags(response_body)
-                    )
+            await extract_summary(message, state,
+                normalize_http_response(
+                    remove_html_tags(response_body)
                 )
-            except Exception as ex:
-                logging.error(f"[{datetime.now()}@bot] Failed to parse web resource content: {ex}")
+            )
+        except Exception as ex:
+            logging.error(f"[{datetime.now()}@bot] Failed to parse web resource content: {ex}")
 
-                await state.finish()
-                await DialogFSM.main_menu.set()
-                await message.answer(WEB_CRAWLER_HTTP_ERROR,
-                                     parse_mode=ParseMode.MARKDOWN,
-                                     reply_markup=main_menu_keyboard)
-
-
-async def send_main_menu_keyboard(message: types.Message):
-    await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
-                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+            await state.finish()
+            await DialogFSM.main_menu.set()
+            await message.answer(WEB_CRAWLER_HTTP_ERROR,
+                                    parse_mode=ParseMode.MARKDOWN,
+                                    reply_markup=main_menu_keyboard)
 
 
 async def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -164,4 +165,5 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
 
     request_update = types.Update(**req.get_json())
     await dispatcher_instance.process_updates([request_update])
+
     return func.HttpResponse(status_code=200)

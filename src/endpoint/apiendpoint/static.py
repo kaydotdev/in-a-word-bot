@@ -11,14 +11,16 @@ BOT_TITLE = emojize(text(*[
     " day by day! Whether you are a student preparing an essay or a researcher working ",
     "with the knowledge base, you spend a lot of time searching, filtering, and summarizing ",
     "text. ", link("Google", "https://www.google.com/"), " can assist you with the first two steps, "
-                                                         "but I will help with the last one!", " Send me a ",
-    bold("plain text"), ", ", bold("file"),
-    ", or ", bold("link to an external resource"), ", and I will summarize it for you in a word :grin:.\n\n",
-    "I'm an open-source project, and you can find my ", link("source code here", REPO_LINK), ". ",
+    "but I will help with the last one!", " Send me a ", bold("plain text"), ", ", bold("file"),
+    ", or ", bold("link to an external resource"), ", and I will summarize it for you ", bold("in a word"), " :grin:.\n\n"]))
+
+ACKNOWLEDGEMENTS = emojize(text(*[
+    "I'm an open-source project, and you can find here my ", link("source code", REPO_LINK), ". ",
     "If you want to report an issue or have some suggestions for improvement, contact the ",
     link("maintainer", DEV_LINK), "."], sep=''))
 
-CHOOSE_AVAILABLE_OPTIONS = emojize(text(*["Choose the available options below:"], sep=''))
+CHOOSE_AVAILABLE_OPTIONS = emojize(text(*["Choose if you want to summarize ", bold("plain text"),
+                                          ", ", bold("file"), ", or ", bold("link to an external resource"), " with options below:"], sep=''))
 
 SUMMARY_OPTION_TITLE = emojize(text(*[
     "Choose the type of text summarization you need:\n\n",
@@ -38,21 +40,31 @@ COMMAND_CANCELLED = emojize(text(*[
     ":warning:", "The command has been cancelled."
 ], sep=' '))
 
-GENERATING_SUMMARY = emojize(text(*[
-    ":notebook_with_decorative_cover:", "Generating summary..."
-], sep=' '))
+PROCESSING_STARTED = emojize(text(*[
+    ":notebook_with_decorative_cover:", " Your request is now processing! ",
+    "It will be sent to you as soon as it will be ready. ", "You can ", bold("check status"),
+    " in the menu below."
+], sep=''))
 
 # STATIC REPLY-KEYBOARD OPTIONS
+MENU_NEW_SUMMARY_OPTION = 'New summary'
+MENU_ABORT_REQUEST_OPTION = 'Abort request'
+MENU_CHECK_STATUS_OPTION = 'Check status'
+MENU_ACKNOWLEDGEMENTS_OPTION = 'Acknowledgements'
+
+MAIN_MENU_OPTIONS = [MENU_NEW_SUMMARY_OPTION, MENU_ABORT_REQUEST_OPTION,
+                     MENU_CHECK_STATUS_OPTION, MENU_ACKNOWLEDGEMENTS_OPTION]
+
 SUMMARY_FROM_PLAIN_TEXT_OPTION = emojize(text(*['Text', ':notebook_with_decorative_cover:']))
 SUMMARY_FROM_FILE_OPTION = emojize(text(*['File', ':floppy_disk:']))
 SUMMARY_FROM_WEB_RESOURCE_OPTION = emojize(text(*['Webpage', ':globe_with_meridians:']))
 
-MAIN_MENU_OPTIONS = [SUMMARY_FROM_PLAIN_TEXT_OPTION, SUMMARY_FROM_FILE_OPTION, SUMMARY_FROM_WEB_RESOURCE_OPTION]
+SUMMARY_CONTENT_OPTIONS = [SUMMARY_FROM_PLAIN_TEXT_OPTION, SUMMARY_FROM_FILE_OPTION, SUMMARY_FROM_WEB_RESOURCE_OPTION]
 
 SUMMARIZE_EXTRACTIVE_OPTION = emojize(text(*['Extractive']))
 SUMMARIZE_ABSTRACTIVE_OPTION = emojize(text(*['Abstractive']))
 
-SUMMARIZE_BY_CRITERIA_OPTIONS = [SUMMARIZE_EXTRACTIVE_OPTION, SUMMARIZE_ABSTRACTIVE_OPTION]
+SUMMARY_TYPE_OPTIONS = [SUMMARIZE_EXTRACTIVE_OPTION, SUMMARIZE_ABSTRACTIVE_OPTION]
 
 CHOSEN_SUMMARY_RESPONSES = {
     SUMMARY_FROM_PLAIN_TEXT_OPTION: emojize(text(*[
@@ -72,13 +84,15 @@ CHOSEN_SUMMARY_RESPONSES = {
 }
 
 # STATIC REPLY-KEYBOARDS
-main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*MAIN_MENU_OPTIONS)
-summarize_by_criteria_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARIZE_BY_CRITERIA_OPTIONS)
+main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(MENU_NEW_SUMMARY_OPTION, MENU_ABORT_REQUEST_OPTION)\
+                                                              .row(MENU_CHECK_STATUS_OPTION, MENU_ACKNOWLEDGEMENTS_OPTION)
+summary_content_option_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARY_CONTENT_OPTIONS)
+summary_type_option_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARY_TYPE_OPTIONS)
 empty_keyboard = ReplyKeyboardRemove()
 
 # ERROR MESSAGES
 NO_SUMMARIZATION_CRITERIA_ERROR = emojize(text(*[':no_entry:', 'The summarization criteria was not specified.']))
 WEB_CRAWLER_HTTP_ERROR = emojize(text(*[':no_entry:', 'Failed to parse web resource content by the given URL.']))
-FILE_SIZE_EXCEEDED_LIMIT_ERROR = emojize(text(*[':no_entry:', 'Uploaded file size is bigger than 20 kB.']))
+FILE_SIZE_EXCEEDED_LIMIT_ERROR = emojize(text(*[':no_entry:', 'Uploaded file size is bigger than 50 kB.']))
 FILE_WRONG_EXTENSION_ERROR = emojize(text(*[':no_entry:', 'Uploaded file has wrong extension.']))
 INCORRECT_HTTP_FORMAT_ERROR = emojize(text(*[':no_entry:', 'Web resource link has incorrect format.']))

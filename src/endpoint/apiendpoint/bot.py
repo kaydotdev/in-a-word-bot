@@ -13,13 +13,14 @@ logging.basicConfig(level=logging.INFO)
 
 bot_instance = Bot(token=API_TOKEN, loop=loop)
 
-storage = MongoStorage(uri=MONGO_CONNECTION_URL)
+storage = MongoStorage(uri=MONGO_CONNECTION_URL, db_name='in_a_word_bot_fsm')
 dispatcher_instance = Dispatcher(bot_instance, storage=storage)
 
 
 class DialogFSM(StatesGroup):
     main_menu = State()
-    summarization_criteria = State()
+    content_type_selection = State()
+    summary_type_selection = State()
 
     plain_text_processing = State()
     file_processing = State()
