@@ -13,7 +13,7 @@ from datetime import datetime
 
 from .static import *
 from .processing import send_to_processing_queue
-from .settings import MAX_FILE_SIZE
+from .settings import MAX_FILE_SIZE, API_TOKEN
 from .bot import bot_instance, dispatcher_instance, DialogFSM
 from .utils import remove_html_tags, normalize_http_response,\
                    re_file_format, re_match_http_url
@@ -160,6 +160,11 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
 
 
 async def main(req: func.HttpRequest) -> func.HttpResponse:
+    api_token = req.params.get('token', '')
+
+    if api_token != API_TOKEN:
+        return func.HttpResponse(status_code=403)
+
     Bot.set_current(bot_instance)
     Dispatcher.set_current(dispatcher_instance)
 
