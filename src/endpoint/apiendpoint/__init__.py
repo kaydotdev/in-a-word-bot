@@ -67,8 +67,8 @@ async def handle_summary_content_assignment(message: types.Message, state: FSMCo
         await message.answer("Request is aborted.", parse_mode=ParseMode.MARKDOWN)
     elif message.text == MENU_CHECK_STATUS_OPTION:
         await message.answer("Nothing to display.", parse_mode=ParseMode.MARKDOWN)
-    elif message.text == MENU_ACKNOWLEDGEMENTS_OPTION:
-        await message.answer(ACKNOWLEDGEMENTS, parse_mode=ParseMode.MARKDOWN)
+    elif message.text == MENU_USAGE_GUIDE_OPTION:
+        await message.answer(USAGE_GUIDE, parse_mode=ParseMode.MARKDOWN)
 
 
 @dispatcher_instance.message_handler(lambda message: message.text in SUMMARY_CONTENT_OPTIONS, state=DialogFSM.content_type_selection)

@@ -14,7 +14,13 @@ BOT_TITLE = emojize(text(*[
     "but I will help with the last one!", " Send me a ", bold("plain text"), ", ", bold("file"),
     ", or ", bold("link to an external resource"), ", and I will summarize it for you ", bold("in a word"), " :grin:.\n\n"]))
 
-ACKNOWLEDGEMENTS = emojize(text(*[
+USAGE_GUIDE = emojize(text(*[
+    "I serve summary requests in a form of a ", bold("live queue"),", processing only one request simultaneously. ",
+    "To request a summary simply press ", bold("New summary"), " and then follow further instructions! ",
+    "After you fill your request I will store it and mark with ", bold("PENDING"), " status. ",
+    "When your turn come, the request will be marked as ", bold("PROCESSING"), ", and then I will send it back as soon as finish it!\n\n",
+    ":bookmark:", bold("NOTE:"), " You can have ", bold("ONLY ONE PENDING REQUEST"), " in the queue, but you can ", bold("Abort request"),
+    " in order to create new (only if it is in ", bold("PENDING"), " state).\n\n",
     "I'm an open-source project, and you can find here my ", link("source code", REPO_LINK), ". ",
     "If you want to report an issue or have some suggestions for improvement, contact the ",
     link("maintainer", DEV_LINK), "."], sep=''))
@@ -50,10 +56,10 @@ PROCESSING_STARTED = emojize(text(*[
 MENU_NEW_SUMMARY_OPTION = 'New summary'
 MENU_ABORT_REQUEST_OPTION = 'Abort request'
 MENU_CHECK_STATUS_OPTION = 'Check status'
-MENU_ACKNOWLEDGEMENTS_OPTION = 'Acknowledgements'
+MENU_USAGE_GUIDE_OPTION = 'Usage guide'
 
 MAIN_MENU_OPTIONS = [MENU_NEW_SUMMARY_OPTION, MENU_ABORT_REQUEST_OPTION,
-                     MENU_CHECK_STATUS_OPTION, MENU_ACKNOWLEDGEMENTS_OPTION]
+                     MENU_CHECK_STATUS_OPTION, MENU_USAGE_GUIDE_OPTION]
 
 SUMMARY_FROM_PLAIN_TEXT_OPTION = emojize(text(*['Text', ':notebook_with_decorative_cover:']))
 SUMMARY_FROM_FILE_OPTION = emojize(text(*['File', ':floppy_disk:']))
@@ -85,7 +91,7 @@ CHOSEN_SUMMARY_RESPONSES = {
 
 # STATIC REPLY-KEYBOARDS
 main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(MENU_NEW_SUMMARY_OPTION, MENU_ABORT_REQUEST_OPTION)\
-                                                              .row(MENU_CHECK_STATUS_OPTION, MENU_ACKNOWLEDGEMENTS_OPTION)
+                                                              .row(MENU_CHECK_STATUS_OPTION, MENU_USAGE_GUIDE_OPTION)
 summary_content_option_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARY_CONTENT_OPTIONS)
 summary_type_option_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARY_TYPE_OPTIONS)
 empty_keyboard = ReplyKeyboardRemove()
