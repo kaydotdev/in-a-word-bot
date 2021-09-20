@@ -1,5 +1,6 @@
 aiogram==2.14.3
 aiohttp>=3.7.4
+aiostream==0.4.3
 async-timeout==3.0.1
 attrs==21.2.0
 azure-core==1.18.0

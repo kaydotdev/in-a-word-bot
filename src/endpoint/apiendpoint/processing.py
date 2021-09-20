@@ -3,6 +3,7 @@ import base64
 from json import dumps
 from uuid import uuid4
 
+from aiostream.stream import list as aiolist
 from azure.data.tables.aio import TableServiceClient
 
 from azure.storage.queue.aio import QueueClient
@@ -38,8 +39,14 @@ async def send_to_processing_queue(chat_id: int, text: str, criteria: str):
     await queue.send_message(base64.b64encode(message))
 
 
-async def check_if_in_queue(chat_id: int):
+async def __get_user_request__(chat_id: int):
     parameters = { "chat_id": str(chat_id) }
-    records = table_client.query_entities("RowKey eq @chat_id", parameters=parameters)
+    return await aiolist(table_client.query_entities("RowKey eq @chat_id", parameters=parameters))
 
-    return len([1 async for _ in records]) > 0
+
+async def check_if_in_queue(chat_id: int):
+    return len(await __get_user_request__(chat_id)) > 0
+
+
+async def get_request_info(chat_id: int):
+    return next(iter(await __get_user_request__(chat_id) or []), None)

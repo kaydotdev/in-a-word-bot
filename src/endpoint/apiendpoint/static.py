@@ -1,5 +1,5 @@
 from aiogram.utils.emoji import emojize
-from aiogram.utils.markdown import bold, text, link, italic
+from aiogram.utils.markdown import bold, text, link, italic, code
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from .settings import REPO_LINK, DEV_LINK
@@ -55,6 +55,14 @@ PROCESSING_STARTED = emojize(text(*[
 REQUEST_IS_IN_QUEUE = emojize(text(*[
     ":warning:", "You've already submitted a summary request! Wait until the processing will ",
     "be finished or ", bold("Abort request"), " to create new."
+], sep=''))
+
+NO_REQUESTS_IN_QUEUE = emojize(text(*[
+    "You have no active requests! Choose ", bold("New summary"), " to submit one!"
+], sep=''))
+
+REQUEST_INFO = lambda id, state: emojize(text(*[
+    f"Your request ", str(id), " is in ", code(state), " state."
 ], sep=''))
 
 # STATIC REPLY-KEYBOARD OPTIONS
