@@ -52,6 +52,11 @@ PROCESSING_STARTED = emojize(text(*[
     " in the menu below."
 ], sep=''))
 
+REQUEST_IS_IN_QUEUE = emojize(text(*[
+    ":warning:", "You've already submitted a summary request! Wait until the processing will ",
+    "be finished or ", bold("Abort request"), " to create new."
+], sep=''))
+
 # STATIC REPLY-KEYBOARD OPTIONS
 MENU_NEW_SUMMARY_OPTION = 'New summary'
 MENU_ABORT_REQUEST_OPTION = 'Abort request'

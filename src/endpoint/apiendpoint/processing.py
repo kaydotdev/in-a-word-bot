@@ -36,3 +36,10 @@ async def send_to_processing_queue(chat_id: int, text: str, criteria: str):
 
     message = dumps(request).encode('ascii')
     await queue.send_message(base64.b64encode(message))
+
+
+async def check_if_in_queue(chat_id: int):
+    parameters = { "chat_id": str(chat_id) }
+    records = table_client.query_entities("RowKey eq @chat_id", parameters=parameters)
+
+    return len([1 async for _ in records]) > 0

@@ -12,7 +12,7 @@ from aiogram.dispatcher import FSMContext
 from datetime import datetime
 
 from .static import *
-from .processing import send_to_processing_queue
+from .processing import send_to_processing_queue, check_if_in_queue
 from .settings import MAX_FILE_SIZE, API_TOKEN
 from .bot import bot_instance, dispatcher_instance, DialogFSM
 from .utils import remove_html_tags, normalize_http_response,\
@@ -60,13 +60,16 @@ async def handle_summary_content_assignment(message: types.Message, state: FSMCo
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summary_content_assignment")
 
     if message.text == MENU_NEW_SUMMARY_OPTION:
-        await DialogFSM.content_type_selection.set()
-        await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
-                             reply_markup=summary_content_option_keyboard)
+        if await check_if_in_queue(message.chat.id):
+            await message.answer(REQUEST_IS_IN_QUEUE, parse_mode=ParseMode.MARKDOWN)
+        else:
+            await DialogFSM.content_type_selection.set()
+            await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
+                                reply_markup=summary_content_option_keyboard)
     elif message.text == MENU_ABORT_REQUEST_OPTION:
-        await message.answer("Request is aborted.", parse_mode=ParseMode.MARKDOWN)
+        await message.answer("Not implemented yet.", parse_mode=ParseMode.MARKDOWN)
     elif message.text == MENU_CHECK_STATUS_OPTION:
-        await message.answer("Nothing to display.", parse_mode=ParseMode.MARKDOWN)
+        await message.answer("Not implemented yet.", parse_mode=ParseMode.MARKDOWN)
     elif message.text == MENU_USAGE_GUIDE_OPTION:
         await message.answer(USAGE_GUIDE, parse_mode=ParseMode.MARKDOWN)
 
