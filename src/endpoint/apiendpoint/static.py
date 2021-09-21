@@ -61,8 +61,8 @@ NO_REQUESTS_IN_QUEUE = emojize(text(*[
     "You have no active requests! Choose ", bold("New summary"), " to submit one!"
 ], sep=''))
 
-REQUEST_INFO = lambda id, state: emojize(text(*[
-    f"Your request ", str(id), " is in ", code(state), " state."
+REQUEST_INFO = lambda state, count_in_front: emojize(text(*[
+    code(count_in_front), " requests left. ", f"Your request is in ", code(state), " state. "
 ], sep=''))
 
 # STATIC REPLY-KEYBOARD OPTIONS

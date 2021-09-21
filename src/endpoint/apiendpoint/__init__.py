@@ -12,7 +12,7 @@ from aiogram.dispatcher import FSMContext
 from datetime import datetime
 
 from .static import *
-from .processing import send_to_processing_queue, check_if_in_queue, get_request_info
+from .processing import send_to_processing_queue, check_if_in_queue, get_request_info, get_requests_count_in_front
 from .settings import MAX_FILE_SIZE, API_TOKEN
 from .bot import bot_instance, dispatcher_instance, DialogFSM
 from .utils import remove_html_tags, normalize_http_response,\
@@ -74,8 +74,9 @@ async def handle_summary_content_assignment(message: types.Message, state: FSMCo
         if request_info is None:
             await message.answer(NO_REQUESTS_IN_QUEUE, parse_mode=ParseMode.MARKDOWN)
         else:
-            await message.answer(REQUEST_INFO(request_info.get('PartitionKey', 0),
-                                              request_info.get('State', 'UNKNOWN')),
+            req_in_front = await get_requests_count_in_front(message.chat.id)
+            await message.answer(REQUEST_INFO(req_in_front['request_state'],
+                                              req_in_front['request_count_in_front']),
                                  parse_mode=ParseMode.MARKDOWN)
     elif message.text == MENU_USAGE_GUIDE_OPTION:
         await message.answer(USAGE_GUIDE, parse_mode=ParseMode.MARKDOWN)

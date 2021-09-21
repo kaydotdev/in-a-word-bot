@@ -1,7 +1,9 @@
+import re
 import base64
 
 from json import dumps
-from uuid import uuid4
+from uuid import uuid4, UUID
+from datetime import datetime
 
 from aiostream.stream import list as aiolist
 from azure.data.tables.aio import TableServiceClient
@@ -11,6 +13,8 @@ from azure.storage.queue import BinaryBase64EncodePolicy
 from azure.storage.blob.aio import BlobServiceClient
 from .settings import REQUEST_STORAGE_CONNECTION_STRING
 
+
+re_strip_uuid = re.compile(r"[-]+")
 
 queue = QueueClient.from_connection_string(
     conn_str=REQUEST_STORAGE_CONNECTION_STRING,
@@ -31,7 +35,7 @@ table_client = table_service_client.get_table_client(table_name="requeststates")
 
 async def send_to_processing_queue(chat_id: int, text: str, criteria: str):
     request_headers = { "PartitionKey": str(uuid4()), "RowKey": str(chat_id) }
-    request = { **request_headers, 'Text': text, 'Type': criteria, 'State': 'PENDING' }
+    request = { **request_headers, 'Text': text, 'Type': criteria, 'State': 'PENDING', 'UnixTimeStamp': int(datetime.timestamp(datetime.now())) }
 
     await table_client.create_entity(entity=request)
 
@@ -50,3 +54,18 @@ async def check_if_in_queue(chat_id: int):
 
 async def get_request_info(chat_id: int):
     return next(iter(await __get_user_request__(chat_id) or []), None)
+
+
+async def get_requests_count_in_front(chat_id: int):
+    user_request = await get_request_info(chat_id)
+
+    if user_request is None:
+        return None
+
+    parameters = { "timestamp": int(user_request.get('UnixTimeStamp', 0)) }
+    request_in_front = await aiolist(table_client.query_entities("UnixTimeStamp le @timestamp", parameters=parameters))
+
+    return {
+        "request_state": user_request.get('State', 'UNKNOWN'),
+        "request_count_in_front": len(request_in_front)
+    }
