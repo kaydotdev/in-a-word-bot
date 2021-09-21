@@ -63,7 +63,7 @@ async def get_requests_count_in_front(chat_id: int):
         return None
 
     parameters = { "timestamp": int(user_request.get('UnixTimeStamp', 0)) }
-    request_in_front = await aiolist(table_client.query_entities("UnixTimeStamp le @timestamp", parameters=parameters))
+    request_in_front = await aiolist(table_client.query_entities("UnixTimeStamp lt @timestamp", parameters=parameters))
 
     return {
         "request_state": user_request.get('State', 'UNKNOWN'),
