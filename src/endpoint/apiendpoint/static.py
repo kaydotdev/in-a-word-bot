@@ -47,7 +47,7 @@ COMMAND_CANCELLED = emojize(text(*[
 ], sep=' '))
 
 PROCESSING_STARTED = emojize(text(*[
-    ":notebook_with_decorative_cover:", " Your request is now processing! ",
+    ":heavy_check_mark:", " Your request is now processing! ",
     "It will be sent to you as soon as it will be ready. ", "You can ", bold("check status"),
     " in the menu below."
 ], sep=''))
@@ -63,6 +63,14 @@ NO_REQUESTS_IN_QUEUE = emojize(text(*[
 
 REQUEST_INFO = lambda state, count_in_front: emojize(text(*[
     code(count_in_front), " requests left. ", f"Your request is in ", code(state), " state. "
+], sep=''))
+
+NO_PROCESSING_REQUEST_ABORT = emojize(text(*[
+    ":warning:", "You cannot abort request in ", code("PROCESSING"), " state."
+], sep=''))
+
+REQUEST_SUCCESSFULLY_ABORTED = emojize(text(*[
+    ":heavy_check_mark:", "Your request is successfully aborted! Choose ", bold("New summary"), " to submit one!"
 ], sep=''))
 
 # STATIC REPLY-KEYBOARD OPTIONS

@@ -12,7 +12,8 @@ from aiogram.dispatcher import FSMContext
 from datetime import datetime
 
 from .static import *
-from .processing import send_to_processing_queue, check_if_in_queue, get_request_info, get_requests_count_in_front
+from .processing import send_to_processing_queue, check_if_in_queue, \
+                        get_request_info, get_requests_count_in_front, abort_request
 from .settings import MAX_FILE_SIZE, API_TOKEN
 from .bot import bot_instance, dispatcher_instance, DialogFSM
 from .utils import remove_html_tags, normalize_http_response,\
@@ -67,7 +68,14 @@ async def handle_summary_content_assignment(message: types.Message, state: FSMCo
             await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
                                 reply_markup=summary_content_option_keyboard)
     elif message.text == MENU_ABORT_REQUEST_OPTION:
-        await message.answer("Not implemented yet.", parse_mode=ParseMode.MARKDOWN)
+        response = await abort_request(message.chat.id)
+
+        if response == "no-requests":
+            await message.answer(NO_REQUESTS_IN_QUEUE, parse_mode=ParseMode.MARKDOWN)
+        elif response == "in-processing":
+            await message.answer(NO_PROCESSING_REQUEST_ABORT, parse_mode=ParseMode.MARKDOWN)
+        else:
+            await message.answer(REQUEST_SUCCESSFULLY_ABORTED, parse_mode=ParseMode.MARKDOWN)
     elif message.text == MENU_CHECK_STATUS_OPTION:
         request_info = await get_request_info(message.chat.id)
 

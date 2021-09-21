@@ -69,3 +69,16 @@ async def get_requests_count_in_front(chat_id: int):
         "request_state": user_request.get('State', 'UNKNOWN'),
         "request_count_in_front": len(request_in_front)
     }
+
+
+async def abort_request(chat_id: int):
+    user_request = await get_request_info(chat_id)
+
+    if user_request is None:
+        return "no-requests"
+    elif user_request["State"] == "PROCESSING":
+        return "in-processing"
+    else:  
+        await table_client.delete_entity(row_key=user_request["RowKey"],
+                                        partition_key=user_request["PartitionKey"])
+        return "ok"
