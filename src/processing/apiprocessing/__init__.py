@@ -4,7 +4,8 @@ import logging
 
 import azure.functions as func
 
-from json import dumps
+from azure.data.tables import UpdateMode
+from azure.data.tables.aio import TableServiceClient
 
 from azure.storage.queue.aio import QueueClient
 from azure.storage.queue import BinaryBase64EncodePolicy
@@ -24,24 +25,37 @@ queue = QueueClient.from_connection_string(
     message_encode_policy=BinaryBase64EncodePolicy()
 )
 
+table_service_client = TableServiceClient.from_connection_string(
+    conn_str=REQUEST_STORAGE_CONNECTION_STRING
+)
+
+table_client = table_service_client.get_table_client(table_name="requeststates")
+
 
 async def main(msg: func.QueueMessage) -> None:
-    request = base64.b64decode(msg.get_body()).decode('ascii')
+    entry_message = msg.get_body()
+    user_request_state = {}
+
+    request = base64.b64decode(entry_message).decode('ascii')
     request_payload = json.loads(request)
 
-    chat_id = request_payload.get('chat_id', None)
-    text_to_process = request_payload.get('text', '')
-    summary_type = request_payload.get('criteria', None)
+    logging.info(request_payload)
 
-    logging.info(dumps({ "chat_id": chat_id, "criteria": summary_type }))
+    try:
+        user_request_state = await table_client.get_entity(partition_key=request_payload["PartitionKey"],
+                                                        row_key=request_payload["RowKey"])
+    except Exception as ex:
+        logging.error(ex)
+        return
 
+    user_request_state["State"] = "PROCESSING"
+    await table_client.upsert_entity(mode=UpdateMode.REPLACE, entity=user_request_state)
+
+    text_to_process, summary_type = user_request_state["Text"], user_request_state["Type"]
     summary = summary_pipelines[summary_type](text_to_process)
 
-    queue_response = {
-        "chat_id": chat_id,
-        "summary": summary,
-        "criteria": summary_type
-    }
+    user_request_state["State"] = "PROCESSED"
+    user_request_state["Text"] = summary
 
-    message = dumps(queue_response).encode('ascii')
-    await queue.send_message(base64.b64encode(message))
+    await table_client.upsert_entity(mode=UpdateMode.REPLACE, entity=user_request_state)
+    await queue.send_message(entry_message)

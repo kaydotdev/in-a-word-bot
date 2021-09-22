@@ -1,7 +1,9 @@
 aiohttp>=3.7.4
+aiostream==0.4.3
 async-timeout==3.0.1
 attrs==21.2.0
 azure-core==1.18.0
+azure-data-tables==12.1.0
 azure-functions==1.7.2
 azure-storage-queue==12.1.6
 certifi==2021.5.30
