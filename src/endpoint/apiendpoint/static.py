@@ -1,8 +1,14 @@
+import re
+
 from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link, italic, code
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 from .settings import REPO_LINK, DEV_LINK
+
+
+re_strip_uuid = re.compile(r"[-]+")
+
 
 # STATIC MESSAGES
 BOT_TITLE = emojize(text(*[
@@ -61,8 +67,8 @@ NO_REQUESTS_IN_QUEUE = emojize(text(*[
     "You have no active requests! Choose ", bold("New summary"), " to submit one!"
 ], sep=''))
 
-REQUEST_INFO = lambda state, count_in_front: emojize(text(*[
-    code(count_in_front), " requests left. ", f"Your request is in ", code(state), " state. "
+REQUEST_INFO = lambda req_id, state, count_in_front: emojize(text(*[
+    code(count_in_front), " requests left. Your request ", code(re_strip_uuid.sub('', req_id)), " is in ", code(state), " state. "
 ], sep=''))
 
 NO_PROCESSING_REQUEST_ABORT = emojize(text(*[

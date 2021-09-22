@@ -16,6 +16,7 @@ from .settings import REQUEST_STORAGE_CONNECTION_STRING
 
 re_strip_uuid = re.compile(r"[-]+")
 
+
 queue = QueueClient.from_connection_string(
     conn_str=REQUEST_STORAGE_CONNECTION_STRING,
     queue_name="summary-batch-processing",
@@ -66,6 +67,7 @@ async def get_requests_count_in_front(chat_id: int):
     request_in_front = await aiolist(table_client.query_entities("UnixTimeStamp lt @timestamp", parameters=parameters))
 
     return {
+        "request_id": user_request.get('PartitionKey', None),
         "request_state": user_request.get('State', 'UNKNOWN'),
         "request_count_in_front": len(request_in_front)
     }
@@ -76,7 +78,7 @@ async def abort_request(chat_id: int):
 
     if user_request is None:
         return "no-requests"
-    elif user_request["State"] == "PROCESSING":
+    elif user_request["State"] != "PENDING":
         return "in-processing"
     else:  
         await table_client.delete_entity(row_key=user_request["RowKey"],

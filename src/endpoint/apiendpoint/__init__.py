@@ -83,7 +83,8 @@ async def handle_summary_content_assignment(message: types.Message, state: FSMCo
             await message.answer(NO_REQUESTS_IN_QUEUE, parse_mode=ParseMode.MARKDOWN)
         else:
             req_in_front = await get_requests_count_in_front(message.chat.id)
-            await message.answer(REQUEST_INFO(req_in_front['request_state'],
+            await message.answer(REQUEST_INFO(req_in_front['request_id'],
+                                              req_in_front['request_state'],
                                               req_in_front['request_count_in_front']),
                                  parse_mode=ParseMode.MARKDOWN)
     elif message.text == MENU_USAGE_GUIDE_OPTION:
