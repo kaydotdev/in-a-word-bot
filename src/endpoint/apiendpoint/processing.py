@@ -39,7 +39,7 @@ async def send_to_processing_queue(chat_id: int, text: str, criteria: str):
 
     await table_client.create_entity(entity=request)
 
-    message = dumps(request).encode('ascii')
+    message = dumps(request_headers).encode('ascii')
     await queue.send_message(base64.b64encode(message))
 
 
