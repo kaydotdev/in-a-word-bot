@@ -143,7 +143,7 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
         logging.info(f"[{datetime.now()}@{message.from_user.username}] processing file '{message.document.file_name}'")
 
         file: io.BytesIO = await bot_instance.download_file_by_id(message.document.file_id)
-        file_containment = file.read().decode('utf-8')
+        file_containment = file.read().decode('ascii')
 
         await extract_summary(message, state, file_containment)
 
