@@ -70,15 +70,27 @@ def tfidf(__corpus: str):
     return __tfidf_words_and_sentences(words, sentences)
 
 
-def extractive_summary(__corpus: str, threshold: float = 1.0) -> str:
-    sentences = sentence_tokenize(__corpus)
+def __calculate_sentence_scores(__corpus: str) -> str:
     corpus_frequencies = tfidf(__corpus)
 
     len_frequencies = np.sum(np.sign(corpus_frequencies), axis=1)
-    sentence_scores = np.sum(corpus_frequencies, axis=1) / len_frequencies
+    return np.sum(corpus_frequencies, axis=1) / len_frequencies
+
+
+def extractive_summary(__corpus: str, threshold: float = 1.0) -> str:
+    sentences = sentence_tokenize(__corpus)
+    sentence_scores = __calculate_sentence_scores(__corpus)
 
     mean_score = np.mean(sentence_scores)
 
     return " ".join([sentence for sentence, is_relevant_score
                      in zip(sentences, sentence_scores >= threshold * mean_score)
                      if is_relevant_score])
+
+
+def extractive_summary_single_sentence(__corpus: str) -> str:
+    sentences = sentence_tokenize(__corpus)
+    sentence_scores = __calculate_sentence_scores(__corpus)
+    top_score_index = np.argmax(sentence_scores)
+
+    return sentences[top_score_index]
