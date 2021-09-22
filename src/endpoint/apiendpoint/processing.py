@@ -2,7 +2,7 @@ import re
 import base64
 
 from json import dumps
-from uuid import uuid4, UUID
+from uuid import uuid4
 from datetime import datetime
 
 from aiostream.stream import list as aiolist
