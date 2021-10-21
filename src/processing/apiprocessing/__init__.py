@@ -43,7 +43,7 @@ async def main(msg: func.QueueMessage) -> None:
 
     try:
         user_request_state = await table_client.get_entity(partition_key=request_payload["PartitionKey"],
-                                                        row_key=request_payload["RowKey"])
+                                                           row_key=request_payload["RowKey"])
     except Exception as ex:
         logging.error(ex)
         return
@@ -52,10 +52,33 @@ async def main(msg: func.QueueMessage) -> None:
     await table_client.upsert_entity(mode=UpdateMode.REPLACE, entity=user_request_state)
 
     text_to_process, summary_type = user_request_state["Text"], user_request_state["Type"]
-    summary = summary_pipelines[summary_type](text_to_process)
+
+    try:
+        summary = summary_pipelines[summary_type](text_to_process)
+    except Exception as ex:
+        logging.error(ex)
+
+        request_headers = {
+            "PartitionKey": request_payload["PartitionKey"],
+            "RowKey": request_payload["RowKey"],
+            "Status": "ERROR"
+        }
+
+        message = json.dumps(request_headers).encode('ascii')
+        await queue.send_message(base64.b64encode(message))
+
+        return
 
     user_request_state["State"] = "PROCESSED"
     user_request_state["Text"] = summary
 
     await table_client.upsert_entity(mode=UpdateMode.REPLACE, entity=user_request_state)
-    await queue.send_message(entry_message)
+
+    request_headers = {
+        "PartitionKey": request_payload["PartitionKey"],
+        "RowKey": request_payload["RowKey"],
+        "Status": "SUCCESS"
+    }
+
+    message = json.dumps(request_headers).encode('ascii')
+    await queue.send_message(base64.b64encode(message))

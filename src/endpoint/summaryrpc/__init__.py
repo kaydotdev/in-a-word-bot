@@ -7,7 +7,9 @@ import azure.functions as func
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import ParseMode
-from aiogram.utils.markdown import bold, text, code
+
+from aiogram.utils.emoji import emojize
+from aiogram.utils.markdown import text, code
 
 from azure.data.tables.aio import TableServiceClient
 
@@ -47,14 +49,21 @@ async def main(msg: func.QueueMessage) -> None:
     Bot.set_current(bot_instance)
     Dispatcher.set_current(dispatcher_instance)
 
-    ready_message = text(*[
-        "Your ", code(user_request_state['Type']), " request ", code(re_strip_uuid.sub('', user_request_state['PartitionKey'])), " is ready:"
-    ], sep='')
+    if request_payload["Status"] == "SUCCESS":
+        ready_message = text(*[
+            "Your ", code(user_request_state['Type']), " request ", code(re_strip_uuid.sub('', user_request_state['PartitionKey'])), " is ready:"
+        ], sep='')
 
-    await bot_instance.send_message(chat_id, ready_message, parse_mode=ParseMode.MARKDOWN)
+        await bot_instance.send_message(chat_id, ready_message, parse_mode=ParseMode.MARKDOWN)
 
-    for i in range(0, len(requested_summary), MAX_MESSAGE_LENGTH):
-        await bot_instance.send_message(chat_id, requested_summary[i:i + MAX_MESSAGE_LENGTH],
-                                 disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
+        for i in range(0, len(requested_summary), MAX_MESSAGE_LENGTH):
+            await bot_instance.send_message(chat_id, requested_summary[i:i + MAX_MESSAGE_LENGTH],
+                                    disable_web_page_preview=True, parse_mode=ParseMode.MARKDOWN)
 
-    logging.info(f"Successfully sent to the client summary: {user_request_state}")
+        logging.info(f"Successfully sent to the client summary: {user_request_state}")
+    else:
+        PROCESSING_ERROR_MESSAGE = emojize(text(*[
+            ":warning:", "An error occured during text processing! Try different format or contact maintainer!"
+        ], sep=' '))
+
+        await bot_instance.send_message(chat_id, PROCESSING_ERROR_MESSAGE, parse_mode=ParseMode.MARKDOWN)
