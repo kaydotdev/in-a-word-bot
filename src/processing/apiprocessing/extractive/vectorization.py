@@ -59,7 +59,7 @@ def idf(__corpus: str, return_tokens=False):
 
 def __tfidf_words_and_sentences(__words: list, __sentences: list):
     vocab = np.unique(__words)
-    tfs = np.array([tf(sent, vocab) for sent in __sentences])
+    tfs = np.array([tf(sent, vocab) for sent in __sentences if len(sent) != 0])
 
     return tfs * np.expand_dims(__idf_for_words(__words), axis=0)
 
