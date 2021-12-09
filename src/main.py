@@ -223,18 +223,24 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
 
 async def on_startup(dp):
     logging.info(f'[{datetime.now()}@bot] Initiating startup...')
+
     await bot.set_webhook(WEBHOOK_URL)
+
     logging.info(f'[{datetime.now()}@bot] Startup successful!')
 
 
 async def on_shutdown(dp):
     logging.info(f'[{datetime.now()}@bot] Initiating shutdown...')
+
     await bot.delete_webhook()
+    await dispatcher.storage.close()
+    await dispatcher.storage.wait_closed()
+
     logging.info(f'[{datetime.now()}@bot] Shutdown successful!')
 
 
 async def app():
-    app = get_new_configured_app(dispatcher=dispatcher, path=WEBHOOK_URL)
+    app = get_new_configured_app(dispatcher=dispatcher, path=WEBHOOK_PATH)
 
     app.on_startup.append(on_startup)
     app.on_shutdown.append(on_shutdown)
