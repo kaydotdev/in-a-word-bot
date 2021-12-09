@@ -4,7 +4,7 @@ from aiogram.utils.emoji import emojize
 from aiogram.utils.markdown import bold, text, link, italic, code
 from aiogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 
-from .settings import REPO_LINK, DEV_LINK
+from settings import REPO_LINK, DEV_LINK
 
 
 re_strip_uuid = re.compile(r"[-]+")
