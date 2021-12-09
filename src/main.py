@@ -9,6 +9,7 @@ import aiohttp
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ParseMode, ContentType
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.webhook import get_new_configured_app
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.executor import start_webhook
@@ -230,6 +231,15 @@ async def on_shutdown(dp):
     logging.info(f'[{datetime.now()}@bot] Initiating shutdown...')
     await bot.delete_webhook()
     logging.info(f'[{datetime.now()}@bot] Shutdown successful!')
+
+
+async def app():
+    app = get_new_configured_app(dispatcher=dispatcher, path=WEBHOOK_URL)
+
+    app.on_startup.append(on_startup)
+    app.on_shutdown.append(on_shutdown)
+
+    return app
 
 
 if __name__ == '__main__':
