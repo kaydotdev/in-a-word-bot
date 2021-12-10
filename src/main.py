@@ -10,7 +10,7 @@ from aiogram.types import ParseMode, ContentType
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.webhook import get_new_configured_app
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.redis import RedisStorage2
 from aiogram.utils.executor import start_webhook, start_polling
 
 from datetime import datetime
@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO)
 loop = asyncio.get_event_loop()
 bot = Bot(token=API_TOKEN, loop=loop)
 
-storage = MemoryStorage()
+storage = RedisStorage2(REDIS_HOST, REDIS_PORT, db=REDIS_DB)
 dispatcher = Dispatcher(bot, storage=storage)
 
 

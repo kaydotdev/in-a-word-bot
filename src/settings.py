@@ -11,11 +11,16 @@ DEV_LINK = os.getenv("ENV_DEV_LINK")
 
 WEBHOOK_MODE = os.getenv('ENV_WEBHOOK_MODE') == "True"
 
-# webhook settings (optional if WEBHOOK_MODE is False)
+# Webhook settings (optional if WEBHOOK_MODE is False)
 WEBHOOK_HOST = os.getenv("ENV_WEBHOOK_HOST")
 WEBHOOK_PATH = os.getenv("ENV_WEBHOOK_PATH")
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
-# webserver settings
+# Webserver settings
 WEBAPP_HOST = os.getenv("ENV_WEBAPP_HOST")
 WEBAPP_PORT = int(os.getenv("ENV_WEBAPP_PORT") or 0)
+
+# Storage settings
+REDIS_HOST = os.getenv("ENV_REDIS_HOST")
+REDIS_PORT = os.getenv("ENV_REDIS_PORT")
+REDIS_DB = int(os.getenv("ENV_REDIS_DB") or 0)
