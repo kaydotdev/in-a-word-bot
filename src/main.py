@@ -11,7 +11,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.webhook import get_new_configured_app
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.utils.executor import start_webhook
+from aiogram.utils.executor import start_webhook, start_polling
 
 from datetime import datetime
 
@@ -186,7 +186,9 @@ async def on_startup(dp):
 async def on_shutdown(dp):
     logging.info(f'[{datetime.now()}@bot] Initiating shutdown...')
 
-    await bot.delete_webhook()
+    if WEBHOOK_MODE:
+        await bot.delete_webhook()
+
     await dispatcher.storage.close()
     await dispatcher.storage.wait_closed()
 
@@ -203,12 +205,17 @@ async def app():
 
 
 if __name__ == '__main__':
-    start_webhook(
-        dispatcher=dispatcher,
-        webhook_path=WEBHOOK_PATH,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True,
-        host=WEBAPP_HOST,
-        port=WEBAPP_PORT,
-    )
+    if WEBHOOK_MODE:
+        start_webhook(
+            dispatcher=dispatcher,
+            webhook_path=WEBHOOK_PATH,
+            on_startup=on_startup,
+            on_shutdown=on_shutdown,
+            skip_updates=True,
+            host=WEBAPP_HOST,
+            port=WEBAPP_PORT,
+        )
+    else:
+        start_polling(dispatcher=dispatcher,
+                      skip_updates=True,
+                      on_shutdown=on_shutdown)
