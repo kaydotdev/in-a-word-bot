@@ -1,6 +1,5 @@
 import io
 import re
-import uuid
 import asyncio
 import logging
 
@@ -16,6 +15,7 @@ from aiogram.utils.executor import start_webhook
 
 from datetime import datetime
 
+from processing.tfidf import summary as extractive_summary
 from static import *
 from settings import *
 from utils import remove_html_tags, normalize_http_response,\
@@ -32,7 +32,6 @@ dispatcher = Dispatcher(bot, storage=storage)
 
 
 class DialogFSM(StatesGroup):
-    main_menu = State()
     content_type_selection = State()
     summary_type_selection = State()
 
@@ -41,36 +40,13 @@ class DialogFSM(StatesGroup):
     web_resource_processing = State()
 
 
-### TODO: Temporary stubs. Add functionallity later
-async def send_to_processing_queue(chat_id, text, type_summary):
-    logging.info(f"Triggered processing for {chat_id}")
-
-async def check_if_in_queue(chat_id):
-    return False
-
-async def abort_request(chat_id):
-    return "no-requests"
-
-async def get_request_info(chat_id):
-    return None
-
-async def get_requests_count_in_front(chat_id):
-    return {
-        'request_id': str(uuid.uuid4()),
-        'request_state': "PENDING",
-        'request_count_in_front': 0
-    }
-
-### TODO: Working zone. Remove comment on finishing code migration
 async def extract_summary(message: types.Message, state: FSMContext, text: str):
     async with state.proxy() as data:
-        await send_to_processing_queue(message.chat.id, text, data['SUMMARY_TYPE'])
+        summary = extractive_summary(text, type="mean")
 
         await state.finish()
-        await DialogFSM.main_menu.set()
-
-        await message.answer(PROCESSING_STARTED, parse_mode=ParseMode.MARKDOWN,
-                             disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+        await message.answer(summary, parse_mode=ParseMode.MARKDOWN,
+                             disable_web_page_preview=True, reply_markup=empty_keyboard)
 
 
 @dispatcher.message_handler(commands=['cancel'], state='*')
@@ -81,56 +57,32 @@ async def handle_cancel(message: types.Message, state: FSMContext):
         return
 
     await state.finish()
-    await DialogFSM.main_menu.set()
     await message.answer(COMMAND_CANCELLED, parse_mode=ParseMode.MARKDOWN,
-                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+                         disable_web_page_preview=True, reply_markup=empty_keyboard)
 
 
 @dispatcher.message_handler(commands=['start'], state='*')
 async def handle_start(message: types.Message, state: FSMContext):
     logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_start")
 
-    if await state.get_state() is not None:
-        await state.finish()
-
-    await DialogFSM.main_menu.set()
     await message.answer(BOT_TITLE, parse_mode=ParseMode.MARKDOWN,
-                         disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+                         disable_web_page_preview=True, reply_markup=empty_keyboard)
 
 
-@dispatcher.message_handler(lambda message: message.text in MAIN_MENU_OPTIONS, state=DialogFSM.main_menu)
-async def handle_summary_content_assignment(message: types.Message, state: FSMContext):
-    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summary_content_assignment")
+@dispatcher.message_handler(commands=['docs'], state='*')
+async def handle_start(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_docs")
 
-    if message.text == MENU_NEW_SUMMARY_OPTION:
-        if await check_if_in_queue(message.chat.id):
-            await message.answer(REQUEST_IS_IN_QUEUE, parse_mode=ParseMode.MARKDOWN)
-        else:
-            await DialogFSM.content_type_selection.set()
-            await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
-                                reply_markup=summary_content_option_keyboard)
-    elif message.text == MENU_ABORT_REQUEST_OPTION:
-        response = await abort_request(message.chat.id)
+    await message.answer(USAGE_GUIDE, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
 
-        if response == "no-requests":
-            await message.answer(NO_REQUESTS_IN_QUEUE, parse_mode=ParseMode.MARKDOWN)
-        elif response == "in-processing":
-            await message.answer(NO_PROCESSING_REQUEST_ABORT, parse_mode=ParseMode.MARKDOWN)
-        else:
-            await message.answer(REQUEST_SUCCESSFULLY_ABORTED, parse_mode=ParseMode.MARKDOWN)
-    elif message.text == MENU_CHECK_STATUS_OPTION:
-        request_info = await get_request_info(message.chat.id)
 
-        if request_info is None:
-            await message.answer(NO_REQUESTS_IN_QUEUE, parse_mode=ParseMode.MARKDOWN)
-        else:
-            req_in_front = await get_requests_count_in_front(message.chat.id)
-            await message.answer(REQUEST_INFO(req_in_front['request_id'],
-                                              req_in_front['request_state'],
-                                              req_in_front['request_count_in_front']),
-                                 parse_mode=ParseMode.MARKDOWN)
-    elif message.text == MENU_USAGE_GUIDE_OPTION:
-        await message.answer(USAGE_GUIDE, parse_mode=ParseMode.MARKDOWN)
+@dispatcher.message_handler(commands=['summary'], state='*')
+async def handle_start(message: types.Message, state: FSMContext):
+    logging.info(f"[{datetime.now()}@{message.from_user.username}] handle_summary")
+
+    await DialogFSM.content_type_selection.set()
+    await message.answer(CHOOSE_AVAILABLE_OPTIONS, parse_mode=ParseMode.MARKDOWN,
+                         reply_markup=summary_content_option_keyboard)
 
 
 @dispatcher.message_handler(lambda message: message.text in SUMMARY_CONTENT_OPTIONS, state=DialogFSM.content_type_selection)
@@ -181,15 +133,14 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
     elif re.match(re_file_format, message.document.file_name) is None:
         await message.answer(FILE_WRONG_EXTENSION_ERROR, parse_mode=ParseMode.MARKDOWN)
     else:
-        await message.answer(PROCESSING_FILE, disable_web_page_preview=True, reply_markup=main_menu_keyboard)
+        await message.answer(PROCESSING_FILE, disable_web_page_preview=True)
         logging.info(f"[{datetime.now()}@{message.from_user.username}] processing file '{message.document.file_name}'")
 
         file: io.BytesIO = await bot.download_file_by_id(message.document.file_id)
         file_containment = file.read().decode('ascii')
+        file.close()
 
         await extract_summary(message, state, file_containment)
-
-        file.close()
 
 
 @dispatcher.message_handler(state=DialogFSM.web_resource_processing, content_types=[ContentType.TEXT])
@@ -215,10 +166,7 @@ async def handle_web_resource_summary(message: types.Message, state: FSMContext)
             logging.error(f"[{datetime.now()}@bot] Failed to parse web resource content: {ex}")
 
             await state.finish()
-            await DialogFSM.main_menu.set()
-            await message.answer(WEB_CRAWLER_HTTP_ERROR,
-                                    parse_mode=ParseMode.MARKDOWN,
-                                    reply_markup=main_menu_keyboard)
+            await message.answer(WEB_CRAWLER_HTTP_ERROR, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
 
 
 async def on_startup(dp):

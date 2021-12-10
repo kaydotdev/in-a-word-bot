@@ -52,42 +52,7 @@ COMMAND_CANCELLED = emojize(text(*[
     ":warning:", "The command has been cancelled."
 ], sep=' '))
 
-PROCESSING_STARTED = emojize(text(*[
-    ":heavy_check_mark:", " Your request is now processing! ",
-    "It will be sent to you as soon as it will be ready. ", "You can ", bold("check status"),
-    " in the menu below."
-], sep=''))
-
-REQUEST_IS_IN_QUEUE = emojize(text(*[
-    ":warning:", "You've already submitted a summary request! Wait until the processing will ",
-    "be finished or ", bold("Abort request"), " to create new."
-], sep=''))
-
-NO_REQUESTS_IN_QUEUE = emojize(text(*[
-    "You have no active requests! Choose ", bold("New summary"), " to submit one!"
-], sep=''))
-
-REQUEST_INFO = lambda req_id, state, count_in_front: emojize(text(*[
-    code(count_in_front), " requests left. Your request ", code(re_strip_uuid.sub('', req_id)), " is in ", code(state), " state. "
-], sep=''))
-
-NO_PROCESSING_REQUEST_ABORT = emojize(text(*[
-    ":warning:", "You cannot abort request in ", code("PROCESSING"), " state."
-], sep=''))
-
-REQUEST_SUCCESSFULLY_ABORTED = emojize(text(*[
-    ":heavy_check_mark:", "Your request is successfully aborted! Choose ", bold("New summary"), " to submit one!"
-], sep=''))
-
 # STATIC REPLY-KEYBOARD OPTIONS
-MENU_NEW_SUMMARY_OPTION = 'New summary'
-MENU_ABORT_REQUEST_OPTION = 'Abort request'
-MENU_CHECK_STATUS_OPTION = 'Check status'
-MENU_USAGE_GUIDE_OPTION = 'Usage guide'
-
-MAIN_MENU_OPTIONS = [MENU_NEW_SUMMARY_OPTION, MENU_ABORT_REQUEST_OPTION,
-                     MENU_CHECK_STATUS_OPTION, MENU_USAGE_GUIDE_OPTION]
-
 SUMMARY_FROM_PLAIN_TEXT_OPTION = emojize(text(*['Text', ':notebook_with_decorative_cover:']))
 SUMMARY_FROM_FILE_OPTION = emojize(text(*['File', ':floppy_disk:']))
 SUMMARY_FROM_WEB_RESOURCE_OPTION = emojize(text(*['Webpage', ':globe_with_meridians:']))
@@ -117,8 +82,6 @@ CHOSEN_SUMMARY_RESPONSES = {
 }
 
 # STATIC REPLY-KEYBOARDS
-main_menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(MENU_NEW_SUMMARY_OPTION, MENU_ABORT_REQUEST_OPTION)\
-                                                              .row(MENU_CHECK_STATUS_OPTION, MENU_USAGE_GUIDE_OPTION)
 summary_content_option_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARY_CONTENT_OPTIONS)
 summary_type_option_keyboard = ReplyKeyboardMarkup(resize_keyboard=True).row(*SUMMARY_TYPE_OPTIONS)
 empty_keyboard = ReplyKeyboardRemove()
