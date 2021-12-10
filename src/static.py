@@ -21,12 +21,6 @@ BOT_TITLE = emojize(text(*[
     ", or ", bold("link to an external resource"), ", and I will summarize it for you ", bold("in a word"), " :grin:.\n\n"]))
 
 USAGE_GUIDE = emojize(text(*[
-    "I serve summary requests in a form of a ", bold("live queue"),", processing only one request simultaneously. ",
-    "To request a summary simply press ", bold("New summary"), " and then follow further instructions! ",
-    "After you fill your request I will store it and mark with ", bold("PENDING"), " status. ",
-    "When your turn come, the request will be marked as ", bold("PROCESSING"), ", and then I will send it back as soon as finish it!\n\n",
-    ":bookmark:", bold("NOTE:"), " You can have ", bold("ONLY ONE PENDING REQUEST"), " in the queue, but you can ", bold("Abort request"),
-    " in order to create new (only if it is in ", bold("PENDING"), " state).\n\n",
     "I'm an open-source project, and you can find here my ", link("source code", REPO_LINK), ". ",
     "If you want to report an issue or have some suggestions for improvement, contact the ",
     link("maintainer", DEV_LINK), "."], sep=''))
