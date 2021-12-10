@@ -3,7 +3,6 @@
 -------------
 
 <a href="http://t.me/in_a_word_bot"><img src="https://img.shields.io/static/v1?label=&labelColor=505050&message=telegram%20bot&color=%230076D6&style=for-the-badge&logo=google-chrome&logoColor=%230076D6" alt="bot"/></a>
-<a><img src="https://img.shields.io/github/workflow/status/antonAce/in-a-word-bot/Build%20and%20deploy%20Python%20app?style=for-the-badge" alt="deploy-pipeline"/></a>
 
 ## Description
 
