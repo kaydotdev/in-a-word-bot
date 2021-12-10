@@ -88,6 +88,7 @@ empty_keyboard = ReplyKeyboardRemove()
 
 # ERROR MESSAGES
 NO_SUMMARIZATION_CRITERIA_ERROR = emojize(text(*[':no_entry:', 'The summarization criteria was not specified.']))
+FILE_OPEN_ERROR = emojize(text(*[':no_entry:', 'Failed to open uploaded file.']))
 WEB_CRAWLER_HTTP_ERROR = emojize(text(*[':no_entry:', 'Failed to parse web resource content by the given URL.']))
 FILE_SIZE_EXCEEDED_LIMIT_ERROR = emojize(text(*[':no_entry:', 'Uploaded file size is bigger than 50 kB.']))
 FILE_WRONG_EXTENSION_ERROR = emojize(text(*[':no_entry:', 'Uploaded file has wrong extension.']))

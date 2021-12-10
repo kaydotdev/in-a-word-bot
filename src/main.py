@@ -133,14 +133,20 @@ async def handle_file_summary(message: types.Message, state: FSMContext):
     elif re.match(re_file_format, message.document.file_name) is None:
         await message.answer(FILE_WRONG_EXTENSION_ERROR, parse_mode=ParseMode.MARKDOWN)
     else:
-        await message.answer(PROCESSING_FILE, disable_web_page_preview=True)
-        logging.info(f"[{datetime.now()}@{message.from_user.username}] processing file '{message.document.file_name}'")
+        try:
+            await message.answer(PROCESSING_FILE, disable_web_page_preview=True)
+            logging.info(f"[{datetime.now()}@{message.from_user.username}] processing file '{message.document.file_name}'")
 
-        file: io.BytesIO = await bot.download_file_by_id(message.document.file_id)
-        file_containment = file.read().decode('ascii')
-        file.close()
+            file: io.BytesIO = await bot.download_file_by_id(message.document.file_id)
+            file_containment = file.read().decode('utf-8')
+            file.close()
 
-        await extract_summary(message, state, file_containment)
+            await extract_summary(message, state, file_containment)
+        except Exception as ex:
+            logging.error(f"[{datetime.now()}@bot] Failed to open file: {ex}")
+
+            await state.finish()
+            await message.answer(FILE_OPEN_ERROR, parse_mode=ParseMode.MARKDOWN, reply_markup=empty_keyboard)
 
 
 @dispatcher.message_handler(state=DialogFSM.web_resource_processing, content_types=[ContentType.TEXT])
