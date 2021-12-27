@@ -45,7 +45,7 @@ class DialogFSM(StatesGroup):
 
 async def extract_summary(message: types.Message, state: FSMContext, text: str):
     async with state.proxy() as data:
-        if data['SUMMARY_TYPE'] == SUMMARIZE_EXTRACTIVE_OPTION:
+        if data['SUMMARY_TYPE'] == SUMMARIZE_EXTRACTIVE_OPTION or len(text) > MAX_ABSTRACT_LENGTH:
             summary = extractive_summary(text, type="mean")
         else:
             summary = transformer.generate(text)
