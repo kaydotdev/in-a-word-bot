@@ -24,3 +24,8 @@ WEBAPP_PORT = int(os.getenv("ENV_WEBAPP_PORT") or 0)
 REDIS_HOST = os.getenv("ENV_REDIS_HOST")
 REDIS_PORT = os.getenv("ENV_REDIS_PORT")
 REDIS_DB = int(os.getenv("ENV_REDIS_DB") or 0)
+
+# ONNX runtime settings
+TOKENIZER_FILE = os.getenv("ENV_TOKENIZER_FILE")
+TRANSFORMER_STATE_DICT_FILE = os.getenv("ENV_TRANSFORMER_STATE_DICT_FILE")
+MAX_ABSTRACT_LENGTH = int(os.getenv("ENV_MAX_ABSTRACT_LENGTH") or 512)

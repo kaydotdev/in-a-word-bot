@@ -15,6 +15,7 @@ from aiogram.utils.executor import start_webhook, start_polling
 
 from datetime import datetime
 
+from processing.transformer import SummaryTransformer
 from processing.tfidf import summary as extractive_summary
 from static import *
 from settings import *
@@ -30,6 +31,8 @@ bot = Bot(token=API_TOKEN, loop=loop)
 storage = RedisStorage2(REDIS_HOST, REDIS_PORT, db=REDIS_DB)
 dispatcher = Dispatcher(bot, storage=storage)
 
+transformer = SummaryTransformer(text_preprocessor_file=TOKENIZER_FILE, model_state_dict_file=TRANSFORMER_STATE_DICT_FILE)
+
 
 class DialogFSM(StatesGroup):
     content_type_selection = State()
@@ -42,7 +45,10 @@ class DialogFSM(StatesGroup):
 
 async def extract_summary(message: types.Message, state: FSMContext, text: str):
     async with state.proxy() as data:
-        summary = extractive_summary(text, type="mean")
+        if data['SUMMARY_TYPE'] == SUMMARIZE_EXTRACTIVE_OPTION:
+            summary = extractive_summary(text, type="mean")
+        else:
+            summary = transformer.generate(text)
 
         await state.finish()
         await message.answer(summary, parse_mode=ParseMode.MARKDOWN,
