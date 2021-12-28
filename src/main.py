@@ -33,6 +33,8 @@ dispatcher = Dispatcher(bot, storage=storage)
 
 transformer = SummaryTransformer(text_preprocessor_file=TOKENIZER_FILE, model_state_dict_file=TRANSFORMER_STATE_DICT_FILE)
 
+extraction_lock = asyncio.Lock()
+
 
 class DialogFSM(StatesGroup):
     content_type_selection = State()
@@ -45,14 +47,17 @@ class DialogFSM(StatesGroup):
 
 async def extract_summary(message: types.Message, state: FSMContext, text: str):
     async with state.proxy() as data:
-        if data['SUMMARY_TYPE'] == SUMMARIZE_EXTRACTIVE_OPTION or len(text) > MAX_ABSTRACT_LENGTH:
-            summary = extractive_summary(text, type="mean")
-        else:
-            summary = transformer.generate(text)
 
-        await state.finish()
-        await message.answer(summary, parse_mode=ParseMode.MARKDOWN,
-                             disable_web_page_preview=True, reply_markup=empty_keyboard)
+        # Summary extraction is a heavy in computation and blocking, so should be bound with mutex
+        async with extraction_lock:
+            if data['SUMMARY_TYPE'] == SUMMARIZE_EXTRACTIVE_OPTION or len(text) > MAX_ABSTRACT_LENGTH:
+                summary = extractive_summary(text, type="max")
+            else:
+                summary = transformer.generate(text)
+
+            await state.finish()
+            await message.answer(summary, parse_mode=ParseMode.MARKDOWN,
+                                disable_web_page_preview=True, reply_markup=empty_keyboard)
 
 
 @dispatcher.message_handler(commands=['cancel'], state='*')
