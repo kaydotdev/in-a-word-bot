@@ -5,14 +5,13 @@ import sentencepiece as spm
 
 class SummaryTransformer:
     ONNX_PROVIERS = ['CPUExecutionProvider']
-    PREFIX = "summarize: "
 
     def __init__(self, text_preprocessor_file: str, model_state_dict_file: str):
         self.tokenizer = spm.SentencePieceProcessor(model_file=text_preprocessor_file)
         self.ort_sess = ort.InferenceSession(model_state_dict_file, providers=self.ONNX_PROVIERS)
     
     def generate(self, text: str, max_length=128):
-        encoded_input = self.tokenizer.encode(self.PREFIX + text, add_eos=True)
+        encoded_input = self.tokenizer.encode(text, add_eos=True)
 
         input_ids = np.expand_dims(np.array(encoded_input), axis=0)
         decoder_input_ids = np.expand_dims(np.array([self.tokenizer.pad_id()]), axis=0)
