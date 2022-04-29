@@ -26,14 +26,13 @@ from utils import remove_html_tags, normalize_http_response,\
 logging.basicConfig(level=logging.INFO)
 
 loop = asyncio.get_event_loop()
-bot = Bot(token=API_TOKEN, loop=loop)
+extraction_lock = asyncio.Lock()
 
+bot = Bot(token=API_TOKEN, loop=loop)
 storage = RedisStorage2(REDIS_HOST, REDIS_PORT, db=REDIS_DB)
 dispatcher = Dispatcher(bot, storage=storage)
 
-transformer = SummaryTransformer(text_preprocessor_file=TOKENIZER_FILE, model_state_dict_file=TRANSFORMER_STATE_DICT_FILE)
-
-extraction_lock = asyncio.Lock()
+transformer = SummaryTransformer(text_preprocessor_file=TOKENIZER_FILE, model_state_dict_file=TRANSFORMER_STATE_DICT_FILE, provider=DEVICE_TYPE)
 
 
 class DialogFSM(StatesGroup):
