@@ -32,6 +32,6 @@ class SummaryTransformer:
 
             output_ids = self.ort_sess.run(None, { 'input_ids': input_ids, 'decoder_input_ids': decoder_input_ids })[0]
             flatten_tokens = output_ids.flatten()
-            decoder_input_ids = np.expand_dims(np.array([tokenizer.pad_id(), *flatten_tokens]), axis=0)
+            decoder_input_ids = np.expand_dims(np.array([self.tokenizer.pad_id(), *flatten_tokens]), axis=0)
 
         return self.tokenizer.decode(decoder_input_ids[0].tolist())
