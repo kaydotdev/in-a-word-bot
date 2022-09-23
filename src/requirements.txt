@@ -16,7 +16,7 @@ lxml==4.7.1
 multidict==5.2.0
 numpy==1.22.0
 onnxruntime-gpu==1.10.0
-protobuf==3.19.1
+protobuf==3.19.5
 pytz==2021.3
 sentencepiece==0.1.96
 typing-extensions==4.0.1
